@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Normal Mode - Warm, motivating palette */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 10%;
+
+    --card: 0 0% 99%;
+    --card-foreground: 240 10% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+
+    --primary: 250 84% 54%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 10% 20%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 5% 46%;
+
+    --accent: 34 100% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 250 84% 54%;
+
+    --radius: 0.75rem;
+
+    --streak: 34 100% 50%;
+    --streak-glow: 0 0 20px hsl(34 100% 50% / 0.4);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark,
+  .ghost-mode {
+    /* Ghost Mode - Pure discipline, no dopamine */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 85%;
+
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 85%;
+
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 85%;
+
+    --primary: 0 0% 85%;
+    --primary-foreground: 0 0% 4%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 70%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 50%;
+
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 85%;
+
+    --success: 0 0% 60%;
+    --success-foreground: 0 0% 4%;
+
+    --destructive: 0 0% 40%;
+    --destructive-foreground: 0 0% 85%;
+
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 0 0% 40%;
+
+    --streak: 0 0% 50%;
+    --streak-glow: none;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .ghost-mode .animate-pulse,
+  .ghost-mode .animate-bounce,
+  .ghost-mode .animate-spin {
+    animation: none !important;
+  }
+
+  .ghost-mode .streak-fire {
+    display: none;
+  }
+
+  .habit-check-animation {
+    animation: habitCheck 0.3s ease-out;
+  }
+
+  @keyframes habitCheck {
+    0% { transform: scale(0.8); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .ghost-mode .habit-check-animation {
+    animation: none;
+  }
+
+  .discipline-score {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes scaleIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
