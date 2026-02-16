@@ -37,6 +37,8 @@ export const HabitSchema = z.object({
   archived: z.boolean().optional(),
   reminder: HabitReminderSchema,
   freezes: z.record(z.string().max(20), HabitFreezeSchema).optional(),
+  timesPerDay: z.number().min(1).max(10).optional(),
+  progress: z.record(z.string().max(20), z.number().min(0).max(10)).optional(),
 });
 
 export const HabitsArraySchema = z.array(HabitSchema);

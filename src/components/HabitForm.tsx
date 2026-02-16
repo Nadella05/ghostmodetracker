@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
-import { Habit, HabitCategory, HabitFrequency, CATEGORY_LABELS } from '@/types/habit';
+import { Habit, HabitCategory, HabitFrequency, CATEGORY_LABELS, MAX_TIMES_PER_DAY } from '@/types/habit';
 import { useHabitContext } from '@/contexts/HabitContext';
 import { WeekdaySelector } from '@/components/WeekdaySelector';
 
@@ -32,7 +32,8 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
   const [name, setName] = useState('');
   const [category, setCategory] = useState<HabitCategory>('personal');
   const [frequency, setFrequency] = useState<HabitFrequency>('daily');
-  const [customDays, setCustomDays] = useState<number[]>([1, 3, 5]); // Mon, Wed, Fri
+  const [customDays, setCustomDays] = useState<number[]>([1, 3, 5]);
+  const [timesPerDay, setTimesPerDay] = useState(1);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderTime, setReminderTime] = useState('09:00');
 
@@ -43,6 +44,7 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
       setCategory(editHabit.category);
       setFrequency(editHabit.frequency);
       setCustomDays(editHabit.customDays || [1, 3, 5]);
+      setTimesPerDay(editHabit.timesPerDay || 1);
       setReminderEnabled(editHabit.reminder?.enabled || false);
       setReminderTime(editHabit.reminder?.time || '09:00');
     } else {
@@ -55,6 +57,7 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
     setCategory('personal');
     setFrequency('daily');
     setCustomDays([1, 3, 5]);
+    setTimesPerDay(1);
     setReminderEnabled(false);
     setReminderTime('09:00');
   };
@@ -69,6 +72,7 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
       category,
       frequency,
       customDays: frequency === 'weekly' ? customDays : undefined,
+      timesPerDay: frequency === 'daily' && timesPerDay > 1 ? timesPerDay : undefined,
       reminder: reminderEnabled ? { enabled: true, time: reminderTime } : undefined,
     };
 
@@ -145,6 +149,23 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
             <div className="space-y-2">
               <Label>Select Days</Label>
               <WeekdaySelector value={customDays} onChange={setCustomDays} />
+            </div>
+          )}
+
+          {frequency === 'daily' && (
+            <div className="space-y-2">
+              <Label htmlFor="timesPerDay">Times per day</Label>
+              <Input
+                id="timesPerDay"
+                type="number"
+                min={1}
+                max={MAX_TIMES_PER_DAY}
+                value={timesPerDay}
+                onChange={(e) => setTimesPerDay(Math.max(1, Math.min(MAX_TIMES_PER_DAY, parseInt(e.target.value) || 1)))}
+              />
+              <p className="text-xs text-muted-foreground">
+                {timesPerDay > 1 ? `Must be completed ${timesPerDay} times each day` : 'Single completion per day'}
+              </p>
             </div>
           )}
 

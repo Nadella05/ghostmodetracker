@@ -43,9 +43,13 @@ export function Dashboard() {
   }
 
   const todaysHabits = getTodaysHabits();
-  const completedToday = todaysHabits.filter(h => 
-    h.completedDates.includes(format(new Date(), 'yyyy-MM-dd'))
-  ).length;
+  const completedToday = todaysHabits.filter(h => {
+    const dateStr = format(new Date(), 'yyyy-MM-dd');
+    if ((h.timesPerDay || 1) > 1) {
+      return (h.progress?.[dateStr] || 0) >= (h.timesPerDay || 1);
+    }
+    return h.completedDates.includes(dateStr);
+  }).length;
 
   const handleEditHabit = (habit: Habit) => {
     setEditingHabit(habit);

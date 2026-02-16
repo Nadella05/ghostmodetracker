@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Habit, HabitStats, CATEGORY_LABELS, HabitFreeze, MAX_FREEZES_PER_MONTH } from '@/types/habit';
+import { Habit, HabitStats, CATEGORY_LABELS, HabitFreeze, MAX_FREEZES_PER_MONTH, MAX_TIMES_PER_DAY } from '@/types/habit';
 import { HabitsArraySchema, ImportDataSchema, safeParseJSON } from '@/lib/validation';
 import { 
   format, 
@@ -63,6 +63,40 @@ export function useHabits() {
     const dateStr = format(date, 'yyyy-MM-dd');
     setHabits(prev => prev.map(h => {
       if (h.id !== habitId) return h;
+      const timesPerDay = h.timesPerDay || 1;
+      
+      if (timesPerDay > 1) {
+        // Count-based habit: increment progress
+        const progress = { ...(h.progress || {}) };
+        const current = progress[dateStr] || 0;
+        
+        if (current >= timesPerDay) {
+          // Already complete — reset progress and remove from completedDates
+          delete progress[dateStr];
+          return {
+            ...h,
+            progress,
+            completedDates: h.completedDates.filter(d => d !== dateStr),
+          };
+        }
+        
+        const newCount = current + 1;
+        progress[dateStr] = newCount;
+        
+        // Mark completed only when fully done
+        const isNowComplete = newCount >= timesPerDay;
+        const wasComplete = h.completedDates.includes(dateStr);
+        
+        return {
+          ...h,
+          progress,
+          completedDates: isNowComplete && !wasComplete
+            ? [...h.completedDates, dateStr]
+            : isNowComplete ? h.completedDates : h.completedDates.filter(d => d !== dateStr),
+        };
+      }
+      
+      // Standard single-tap habit
       const isCompleted = h.completedDates.includes(dateStr);
       return {
         ...h,
@@ -121,7 +155,19 @@ export function useHabits() {
 
   const isHabitCompletedForDate = useCallback((habit: Habit, date: Date): boolean => {
     const dateStr = format(date, 'yyyy-MM-dd');
+    const timesPerDay = habit.timesPerDay || 1;
+    if (timesPerDay > 1) {
+      return (habit.progress?.[dateStr] || 0) >= timesPerDay;
+    }
     return habit.completedDates.includes(dateStr);
+  }, []);
+
+  const getProgressForDate = useCallback((habit: Habit, date: Date): number => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    if ((habit.timesPerDay || 1) <= 1) {
+      return habit.completedDates.includes(dateStr) ? 1 : 0;
+    }
+    return habit.progress?.[dateStr] || 0;
   }, []);
 
   const isHabitScheduledForDate = useCallback((habit: Habit, date: Date): boolean => {
@@ -313,6 +359,7 @@ export function useHabits() {
     archiveHabit,
     toggleHabitForDate,
     isHabitCompletedForDate,
+    getProgressForDate,
     isHabitFrozenForDate,
     freezeHabitForDate,
     unFreezeHabitForDate,

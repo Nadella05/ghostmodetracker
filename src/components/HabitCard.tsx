@@ -5,7 +5,8 @@ import {
   MoreVertical, 
   Archive,
   Edit,
-  Snowflake
+  Snowflake,
+  Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Habit, CATEGORY_LABELS, WEEKDAYS } from '@/types/habit';
@@ -38,6 +39,7 @@ export function HabitCard({ habit, date = new Date(), onEdit }: HabitCardProps) 
     xpSystem,
     habits,
     getHabitStats,
+    getProgressForDate,
     profile
   } = useHabitContext();
   const { toast } = useToast();
@@ -47,6 +49,9 @@ export function HabitCard({ habit, date = new Date(), onEdit }: HabitCardProps) 
   const isCompleted = isHabitCompletedForDate(habit, date);
   const isFrozen = isHabitFrozenForDate(habit, date);
   const streak = getStreakForHabit(habit);
+  const timesPerDay = habit.timesPerDay || 1;
+  const isCountBased = timesPerDay > 1;
+  const currentProgress = getProgressForDate(habit, date);
 
   const computeXPStats = () => {
     const activeHabits = habits.filter(h => !h.archived);
@@ -69,12 +74,54 @@ export function HabitCard({ habit, date = new Date(), onEdit }: HabitCardProps) 
   };
 
   const handleToggle = () => {
-    if (isFrozen) return; // Can't toggle a frozen day
-    const wasCompleted = isCompleted;
-    toggleHabitForDate(habit.id, date);
+    if (isFrozen) return;
     
     const today = new Date();
     const isToday = date.toDateString() === today.toDateString();
+    
+    if (isCountBased) {
+      if (isCompleted) {
+        // Reset: remove XP
+        toggleHabitForDate(habit.id, date);
+        if (isToday && !isGhostMode) {
+          xpSystem.removeCompletionXP(habit.id);
+        }
+        return;
+      }
+      
+      // Increment progress
+      const wasCompleted = isCompleted;
+      toggleHabitForDate(habit.id, date);
+      
+      // XP only when reaching full completion
+      const willBeComplete = (currentProgress + 1) >= timesPerDay;
+      if (isToday && !isGhostMode && willBeComplete && !wasCompleted) {
+        const result = xpSystem.awardCompletionXP(habit.id);
+        if (result.awarded) {
+          toast({
+            title: `+${xpSystem.xpPerCompletion} XP`,
+            description: result.leveledUp ? '🎉 Level up!' : habit.name,
+            duration: 2000,
+          });
+          setTimeout(() => {
+            const stats = computeXPStats();
+            const newAchievements = xpSystem.forceAchievementCheck(stats);
+            newAchievements.forEach(achievement => {
+              toast({
+                title: `🏆 Achievement Unlocked!`,
+                description: `${achievement.icon} ${achievement.name} (+${achievement.xpReward} XP)`,
+                duration: 4000,
+              });
+            });
+          }, 500);
+        }
+      }
+      return;
+    }
+    
+    // Standard single-tap logic
+    const wasCompleted = isCompleted;
+    toggleHabitForDate(habit.id, date);
     
     if (isToday && !isGhostMode) {
       if (!wasCompleted) {
@@ -134,27 +181,51 @@ export function HabitCard({ habit, date = new Date(), onEdit }: HabitCardProps) 
           !isGhostMode && isCompleted && "animate-scale-in"
         )}
       >
-        {/* Checkbox / Frozen indicator */}
-        <button
-          onClick={handleToggle}
-          onContextMenu={(e) => { e.preventDefault(); handleLongPress(); }}
-          disabled={isFrozen}
-          className={cn(
-            "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 transition-all",
-            isFrozen
-              ? "border-sky-300/50 bg-sky-100/10 cursor-default"
-              : isCompleted
-                ? "border-success bg-success text-success-foreground"
-                : "border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5",
-            !isGhostMode && isCompleted && "habit-check-animation"
-          )}
-        >
-          {isFrozen ? (
-            <Snowflake className="h-5 w-5 text-sky-400" />
-          ) : isCompleted ? (
-            <Check className="h-5 w-5" strokeWidth={3} />
-          ) : null}
-        </button>
+        {/* Checkbox / Frozen indicator / Count progress */}
+        {isCountBased ? (
+          <button
+            onClick={handleToggle}
+            disabled={isFrozen || isCompleted}
+            className={cn(
+              "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 transition-all relative",
+              isFrozen
+                ? "border-sky-300/50 bg-sky-100/10 cursor-default"
+                : isCompleted
+                  ? "border-success bg-success text-success-foreground"
+                  : "border-primary/30 bg-primary/5 hover:border-primary/50 hover:bg-primary/10",
+              !isGhostMode && isCompleted && "habit-check-animation"
+            )}
+          >
+            {isFrozen ? (
+              <Snowflake className="h-5 w-5 text-sky-400" />
+            ) : isCompleted ? (
+              <Check className="h-5 w-5" strokeWidth={3} />
+            ) : (
+              <Plus className="h-4 w-4 text-primary" />
+            )}
+          </button>
+        ) : (
+          <button
+            onClick={handleToggle}
+            onContextMenu={(e) => { e.preventDefault(); handleLongPress(); }}
+            disabled={isFrozen}
+            className={cn(
+              "flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 transition-all",
+              isFrozen
+                ? "border-sky-300/50 bg-sky-100/10 cursor-default"
+                : isCompleted
+                  ? "border-success bg-success text-success-foreground"
+                  : "border-muted-foreground/30 hover:border-primary/50 hover:bg-primary/5",
+              !isGhostMode && isCompleted && "habit-check-animation"
+            )}
+          >
+            {isFrozen ? (
+              <Snowflake className="h-5 w-5 text-sky-400" />
+            ) : isCompleted ? (
+              <Check className="h-5 w-5" strokeWidth={3} />
+            ) : null}
+          </button>
+        )}
 
         {/* Content */}
         <div className="flex-1 min-w-0">
@@ -170,12 +241,36 @@ export function HabitCard({ habit, date = new Date(), onEdit }: HabitCardProps) 
               {habit.name}
             </h3>
           </div>
-          <p className="text-sm text-muted-foreground truncate">
-            {isFrozen 
-              ? `🧊 Frozen — ${freezeReason || 'No reason'}`
-              : `${CATEGORY_LABELS[habit.category]} • ${getFrequencyLabel()}`
-            }
-          </p>
+          
+          {/* Count-based progress */}
+          {isCountBased && !isFrozen ? (
+            <div className="flex items-center gap-2">
+              <div className="flex gap-0.5">
+                {Array.from({ length: timesPerDay }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "h-1.5 rounded-full transition-all",
+                      isGhostMode ? "w-4" : "w-4",
+                      i < currentProgress
+                        ? isGhostMode ? "bg-muted-foreground" : "bg-primary"
+                        : "bg-secondary"
+                    )}
+                  />
+                ))}
+              </div>
+              <span className="text-sm text-muted-foreground font-mono">
+                {currentProgress} / {timesPerDay}
+              </span>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground truncate">
+              {isFrozen 
+                ? `🧊 Frozen — ${freezeReason || 'No reason'}`
+                : `${CATEGORY_LABELS[habit.category]} • ${getFrequencyLabel()}`
+              }
+            </p>
+          )}
         </div>
 
         {/* Streak */}
