@@ -33,7 +33,11 @@ export interface Habit {
   archived?: boolean;
   reminder?: HabitReminder;
   freezes?: Record<string, HabitFreeze>; // date string -> freeze data
+  timesPerDay?: number; // count-based: required completions per day (default 1)
+  progress?: Record<string, number>; // count-based: date string -> times completed
 }
+
+export const MAX_TIMES_PER_DAY = 10;
 
 export const FREEZE_REASONS: FreezeReason[] = ['Sick', 'Travel', 'Emergency', 'Mental health', 'Other'];
 export const MAX_FREEZES_PER_MONTH = 2;

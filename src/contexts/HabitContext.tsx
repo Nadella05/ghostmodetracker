@@ -16,6 +16,7 @@ interface HabitContextType {
   archiveHabit: (id: string) => void;
   toggleHabitForDate: (habitId: string, date: Date) => void;
   isHabitCompletedForDate: (habit: Habit, date: Date) => boolean;
+  getProgressForDate: (habit: Habit, date: Date) => number;
   isHabitFrozenForDate: (habit: Habit, date: Date) => boolean;
   freezeHabitForDate: (habitId: string, date: Date, reason: string) => void;
   unFreezeHabitForDate: (habitId: string, date: Date) => void;
