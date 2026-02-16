@@ -3,6 +3,9 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
+const reactPath = path.resolve(__dirname, "./node_modules/react");
+const reactDomPath = path.resolve(__dirname, "./node_modules/react-dom");
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   base: "/ghostmodetracker/",
@@ -20,11 +23,11 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "react": path.resolve(__dirname, "./node_modules/react"),
-      "react/jsx-runtime": path.resolve(__dirname, "./node_modules/react/jsx-runtime"),
-      "react/jsx-dev-runtime": path.resolve(__dirname, "./node_modules/react/jsx-dev-runtime"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
-      "react-dom/client": path.resolve(__dirname, "./node_modules/react-dom/client"),
+      "react": reactPath,
+      "react/jsx-runtime": path.resolve(reactPath, "jsx-runtime"),
+      "react/jsx-dev-runtime": path.resolve(reactPath, "jsx-dev-runtime"),
+      "react-dom": reactDomPath,
+      "react-dom/client": path.resolve(reactDomPath, "client"),
     },
     dedupe: [
       "react",
@@ -32,9 +35,6 @@ export default defineConfig(({ mode }) => ({
       "react/jsx-dev-runtime",
       "react-dom",
       "react-dom/client",
-      "@radix-ui/react-tooltip",
-      "@radix-ui/react-dialog",
-      "@radix-ui/react-popover",
     ],
   },
 
