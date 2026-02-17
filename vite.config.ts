@@ -8,7 +8,7 @@ const reactDomPath = path.resolve(__dirname, "./node_modules/react-dom");
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/ghostmodetracker/",
+  base: "/",
 
   server: {
     host: "::",
