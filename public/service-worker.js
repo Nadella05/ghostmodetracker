@@ -37,6 +37,8 @@ self.addEventListener('activate', (event) => {
 
 // Network-first strategy: Try network, fall back to cache for offline
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
     return;
@@ -44,6 +46,11 @@ self.addEventListener('fetch', (event) => {
 
   // Skip external requests
   if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  // Skip manifest.json to avoid auth-bridge/CORS issues
+  if (url.pathname.endsWith('manifest.json')) {
     return;
   }
 

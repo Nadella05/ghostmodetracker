@@ -2,7 +2,7 @@
   "name": "Habit Tracker",
   "short_name": "Habits",
   "description": "A distraction-free habit tracker with Ghost Mode for disciplined users",
-  "start_url": "/",
+  "start_url": "/ghostmodetracker/",
   "display": "standalone",
   "background_color": "#0a0a0b",
   "theme_color": "#0a0a0b",
