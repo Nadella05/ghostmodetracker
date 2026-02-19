@@ -157,11 +157,22 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
               <Label htmlFor="timesPerDay">Times per day</Label>
               <Input
                 id="timesPerDay"
-                type="number"
-                min={1}
-                max={MAX_TIMES_PER_DAY}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={timesPerDay}
-                onChange={(e) => setTimesPerDay(Math.max(1, Math.min(MAX_TIMES_PER_DAY, parseInt(e.target.value) || 1)))}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/[^0-9]/g, '');
+                  if (raw === '') {
+                    setTimesPerDay('' as any);
+                  } else {
+                    const num = parseInt(raw, 10);
+                    setTimesPerDay(Math.min(MAX_TIMES_PER_DAY, num));
+                  }
+                }}
+                onBlur={() => {
+                  if (!timesPerDay || timesPerDay < 1) setTimesPerDay(1);
+                }}
               />
               <p className="text-xs text-muted-foreground">
                 {timesPerDay > 1 ? `Must be completed ${timesPerDay} times each day` : 'Single completion per day'}
