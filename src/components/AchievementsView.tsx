@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useHabitContext } from '@/contexts/HabitContext';
-import { ACHIEVEMENTS } from '@/types/habit';
+import { ACHIEVEMENTS, ACHIEVEMENT_CATEGORIES, getAchievementCategory, AchievementCategory } from '@/data/achievements';
 import { Lock, CheckCircle2 } from 'lucide-react';
 
 export function AchievementsView() {
   const { profile, isGhostMode } = useHabitContext();
   const unlockedIds = profile.unlockedAchievements || [];
+  const [activeCategory, setActiveCategory] = useState<AchievementCategory>('all');
   
   if (isGhostMode) {
     return (
@@ -14,7 +16,14 @@ export function AchievementsView() {
       </div>
     );
   }
-  
+
+  const filtered = activeCategory === 'all' 
+    ? ACHIEVEMENTS 
+    : ACHIEVEMENTS.filter(a => getAchievementCategory(a.id) === activeCategory);
+
+  const unlockedCount = ACHIEVEMENTS.filter(a => unlockedIds.includes(a.id)).length;
+  const filteredUnlocked = filtered.filter(a => unlockedIds.includes(a.id)).length;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -22,12 +31,35 @@ export function AchievementsView() {
           Achievements
         </h3>
         <span className="text-sm text-muted-foreground">
-          {unlockedIds.length}/{ACHIEVEMENTS.length} unlocked
+          {unlockedCount}/{ACHIEVEMENTS.length} unlocked
         </span>
       </div>
+
+      {/* Category filter */}
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+        {ACHIEVEMENT_CATEGORIES.map(cat => (
+          <button
+            key={cat.id}
+            onClick={() => setActiveCategory(cat.id)}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors border",
+              activeCategory === cat.id
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-secondary/50 text-muted-foreground border-border hover:bg-secondary"
+            )}
+          >
+            <span>{cat.icon}</span>
+            {cat.label}
+          </button>
+        ))}
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        {filteredUnlocked}/{filtered.length} in this category
+      </p>
       
       <div className="grid grid-cols-1 gap-3">
-        {ACHIEVEMENTS.map((achievement) => {
+        {filtered.map((achievement) => {
           const isUnlocked = unlockedIds.includes(achievement.id);
           
           return (
@@ -42,7 +74,7 @@ export function AchievementsView() {
             >
               <div className="flex items-start gap-3">
                 <div className={cn(
-                  "w-10 h-10 rounded-lg flex items-center justify-center text-xl",
+                  "w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0",
                   isUnlocked ? "bg-primary/10" : "bg-muted"
                 )}>
                   {isUnlocked ? achievement.icon : <Lock className="h-4 w-4 text-muted-foreground" />}
@@ -57,7 +89,7 @@ export function AchievementsView() {
                       {achievement.name}
                     </p>
                     {isUnlocked && (
-                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground">
@@ -66,7 +98,7 @@ export function AchievementsView() {
                 </div>
                 
                 <div className={cn(
-                  "text-sm font-medium",
+                  "text-sm font-medium shrink-0",
                   isUnlocked ? "text-primary" : "text-muted-foreground"
                 )}>
                   +{achievement.xpReward} XP

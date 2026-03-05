@@ -3,10 +3,10 @@ import { format } from 'date-fns';
 import { 
   UserProfile, 
   UserXPStats, 
-  ACHIEVEMENTS, 
   calculateLevel,
   Achievement
 } from '@/types/habit';
+import { ACHIEVEMENTS } from '@/data/achievements';
 import { XPLogSchema, safeParseJSONWithDefaults } from '@/lib/validation';
 
 const XP_PER_COMPLETION = 10;
