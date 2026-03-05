@@ -10,6 +10,7 @@ import {
   startOfMonth,
   eachDayOfInterval,
   isSameDay,
+  isBefore,
   getDay
 } from 'date-fns';
 
@@ -37,10 +38,13 @@ export function useHabits() {
   }, [habits, isLoaded]);
 
   const addHabit = useCallback((habit: Omit<Habit, 'id' | 'createdOn' | 'completedDates'>) => {
+    const now = new Date();
+    const defaultStartDate = format(startOfMonth(now), 'yyyy-MM-dd');
     const newHabit: Habit = {
       ...habit,
       id: generateId(),
-      createdOn: format(new Date(), 'yyyy-MM-dd'),
+      createdOn: format(now, 'yyyy-MM-dd'),
+      startDate: habit.startDate || defaultStartDate,
       completedDates: [],
     };
     setHabits(prev => [...prev, newHabit]);
@@ -171,6 +175,12 @@ export function useHabits() {
   }, []);
 
   const isHabitScheduledForDate = useCallback((habit: Habit, date: Date): boolean => {
+    // Check if date is before habit's start date
+    const startDate = habit.startDate ? parseISO(habit.startDate) : parseISO(habit.createdOn);
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const startOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    if (isBefore(dateOnly, startOnly)) return false;
+
     const dayOfWeek = getDay(date);
     
     if (habit.frequency === 'daily') return true;
@@ -367,6 +377,7 @@ export function useHabits() {
     getFreezesThisMonth,
     getStreakForHabit,
     getHabitStats,
+    isHabitScheduledForDate,
     getTodaysHabits,
     getActiveHabits,
     exportData,

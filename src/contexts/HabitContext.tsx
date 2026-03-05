@@ -22,6 +22,7 @@ interface HabitContextType {
   unFreezeHabitForDate: (habitId: string, date: Date) => void;
   canFreezeHabit: (habit: Habit, date: Date) => boolean;
   getFreezesThisMonth: (habit: Habit, date: Date) => number;
+  isHabitScheduledForDate: (habit: Habit, date: Date) => boolean;
   getStreakForHabit: (habit: Habit) => number;
   getHabitStats: (habit: Habit) => HabitStats;
   getTodaysHabits: () => Habit[];

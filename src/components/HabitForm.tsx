@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { format, startOfMonth } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,10 +17,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { Switch } from '@/components/ui/switch';
 import { Habit, HabitCategory, HabitFrequency, CATEGORY_LABELS, MAX_TIMES_PER_DAY } from '@/types/habit';
 import { useHabitContext } from '@/contexts/HabitContext';
 import { WeekdaySelector } from '@/components/WeekdaySelector';
+import { cn } from '@/lib/utils';
 
 interface HabitFormProps {
   open: boolean;
@@ -36,6 +45,7 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
   const [timesPerDay, setTimesPerDay] = useState(1);
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderTime, setReminderTime] = useState('09:00');
+  const [startDate, setStartDate] = useState<Date>(startOfMonth(new Date()));
 
   // Reset form when editHabit changes
   useEffect(() => {
@@ -47,6 +57,7 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
       setTimesPerDay(editHabit.timesPerDay || 1);
       setReminderEnabled(editHabit.reminder?.enabled || false);
       setReminderTime(editHabit.reminder?.time || '09:00');
+      setStartDate(editHabit.startDate ? new Date(editHabit.startDate) : new Date(editHabit.createdOn));
     } else {
       resetForm();
     }
@@ -60,6 +71,7 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
     setTimesPerDay(1);
     setReminderEnabled(false);
     setReminderTime('09:00');
+    setStartDate(startOfMonth(new Date()));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -74,6 +86,7 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
       customDays: frequency === 'weekly' ? customDays : undefined,
       timesPerDay: frequency === 'daily' && timesPerDay > 1 ? timesPerDay : undefined,
       reminder: reminderEnabled ? { enabled: true, time: reminderTime } : undefined,
+      startDate: format(startDate, 'yyyy-MM-dd'),
     };
 
     if (editHabit) {
@@ -179,6 +192,37 @@ export function HabitForm({ open, onOpenChange, editHabit }: HabitFormProps) {
               </p>
             </div>
           )}
+
+          {/* Start Date Picker */}
+          <div className="space-y-2">
+            <Label>Start Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !startDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {format(startDate, 'PPP')}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={(date) => date && setStartDate(date)}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+            <p className="text-xs text-muted-foreground">
+              Habit tracking begins from this date
+            </p>
+          </div>
 
           {showReminders && (
             <div className="space-y-3 rounded-lg border bg-secondary/30 p-4">

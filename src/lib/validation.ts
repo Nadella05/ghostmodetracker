@@ -33,6 +33,7 @@ export const HabitSchema = z.object({
   frequency: HabitFrequencySchema,
   customDays: z.array(z.number().min(0).max(6)).optional(),
   createdOn: z.string().max(20),
+  startDate: z.string().max(20).optional(),
   completedDates: z.array(z.string().max(20)),
   archived: z.boolean().optional(),
   reminder: HabitReminderSchema,
