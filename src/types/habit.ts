@@ -29,6 +29,7 @@ export interface Habit {
   frequency: HabitFrequency;
   customDays?: number[]; // 0-6 for Sunday-Saturday
   createdOn: string; // ISO date string
+  startDate?: string; // ISO date string - when the habit tracking begins
   completedDates: string[]; // Array of ISO date strings
   archived?: boolean;
   reminder?: HabitReminder;
