@@ -10,6 +10,7 @@ import { AnalyticsView } from '@/components/AnalyticsView';
 import { SettingsView } from '@/components/SettingsView';
 import { Onboarding } from '@/components/Onboarding';
 import { WaterTracker } from '@/components/WaterTracker';
+import { CalorieChat } from '@/components/CalorieChat';
 import { XPDisplay } from '@/components/XPDisplay';
 import { Button } from '@/components/ui/button';
 import { Habit, ThemeColor } from '@/types/habit';
@@ -92,6 +93,7 @@ export function Dashboard() {
                     </>
                   )}
                   {activeTab === 'water' && 'Hydration'}
+                  {activeTab === 'calories' && 'Calories'}
                   {activeTab === 'calendar' && 'Calendar'}
                   {activeTab === 'analytics' && 'Analytics'}
                   {activeTab === 'settings' && 'Settings'}
@@ -172,6 +174,8 @@ export function Dashboard() {
           />
         )}
 
+        {activeTab === 'calories' && <CalorieChat />}
+
         {activeTab === 'calendar' && <CalendarView />}
         {activeTab === 'analytics' && <AnalyticsView />}
         {activeTab === 'settings' && <SettingsView />}
@@ -200,14 +204,14 @@ export function Dashboard() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors",
+                  "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors",
                   activeTab === tab.id
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {tab.icon}
-                <span className="text-xs font-medium">{tab.label}</span>
+                <span className="text-[10px] font-medium">{tab.label}</span>
               </button>
             ))}
           </div>
