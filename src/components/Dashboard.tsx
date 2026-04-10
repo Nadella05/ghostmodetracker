@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Calendar, BarChart3, Settings, CheckCircle, Ghost, Droplets } from 'lucide-react';
+import { Plus, Calendar, BarChart3, Settings, CheckCircle, Ghost, Droplets, Flame } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useHabitContext } from '@/contexts/HabitContext';
@@ -14,7 +14,7 @@ import { XPDisplay } from '@/components/XPDisplay';
 import { Button } from '@/components/ui/button';
 import { Habit, ThemeColor } from '@/types/habit';
 
-type Tab = 'today' | 'water' | 'calendar' | 'analytics' | 'settings';
+type Tab = 'today' | 'water' | 'calories' | 'calendar' | 'analytics' | 'settings';
 
 export function Dashboard() {
   const { 
@@ -71,7 +71,7 @@ export function Dashboard() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'today', label: 'Today', icon: <CheckCircle className="h-5 w-5" /> },
     { id: 'water', label: 'Water', icon: <Droplets className="h-5 w-5" /> },
-    { id: 'calendar', label: 'Calendar', icon: <Calendar className="h-5 w-5" /> },
+    { id: 'calories', label: 'Calories', icon: <Flame className="h-5 w-5" /> },
     { id: 'analytics', label: 'Stats', icon: <BarChart3 className="h-5 w-5" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
   ];
