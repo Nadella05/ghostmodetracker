@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Calendar, BarChart3, Settings, CheckCircle, Ghost, Droplets } from 'lucide-react';
+import { Plus, Calendar, BarChart3, Settings, CheckCircle, Ghost, Droplets, Flame } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useHabitContext } from '@/contexts/HabitContext';
@@ -10,11 +10,12 @@ import { AnalyticsView } from '@/components/AnalyticsView';
 import { SettingsView } from '@/components/SettingsView';
 import { Onboarding } from '@/components/Onboarding';
 import { WaterTracker } from '@/components/WaterTracker';
+import { CalorieChat } from '@/components/CalorieChat';
 import { XPDisplay } from '@/components/XPDisplay';
 import { Button } from '@/components/ui/button';
 import { Habit, ThemeColor } from '@/types/habit';
 
-type Tab = 'today' | 'water' | 'calendar' | 'analytics' | 'settings';
+type Tab = 'today' | 'water' | 'calories' | 'calendar' | 'analytics' | 'settings';
 
 export function Dashboard() {
   const { 
@@ -71,7 +72,7 @@ export function Dashboard() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'today', label: 'Today', icon: <CheckCircle className="h-5 w-5" /> },
     { id: 'water', label: 'Water', icon: <Droplets className="h-5 w-5" /> },
-    { id: 'calendar', label: 'Calendar', icon: <Calendar className="h-5 w-5" /> },
+    { id: 'calories', label: 'Calories', icon: <Flame className="h-5 w-5" /> },
     { id: 'analytics', label: 'Stats', icon: <BarChart3 className="h-5 w-5" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
   ];
@@ -92,6 +93,7 @@ export function Dashboard() {
                     </>
                   )}
                   {activeTab === 'water' && 'Hydration'}
+                  {activeTab === 'calories' && 'Calories'}
                   {activeTab === 'calendar' && 'Calendar'}
                   {activeTab === 'analytics' && 'Analytics'}
                   {activeTab === 'settings' && 'Settings'}
@@ -172,6 +174,8 @@ export function Dashboard() {
           />
         )}
 
+        {activeTab === 'calories' && <CalorieChat />}
+
         {activeTab === 'calendar' && <CalendarView />}
         {activeTab === 'analytics' && <AnalyticsView />}
         {activeTab === 'settings' && <SettingsView />}
@@ -200,14 +204,14 @@ export function Dashboard() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors",
+                  "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors",
                   activeTab === tab.id
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 {tab.icon}
-                <span className="text-xs font-medium">{tab.label}</span>
+                <span className="text-[10px] font-medium">{tab.label}</span>
               </button>
             ))}
           </div>

@@ -1,0 +1,305 @@
+export interface FoodItem {
+  name: string;
+  displayName: string;
+  caloriesPerUnit: number;
+  unit: string;
+}
+
+export const FOOD_DATABASE: Record<string, FoodItem> = {
+  // Indian breads
+  roti: { name: 'roti', displayName: 'Roti', caloriesPerUnit: 120, unit: 'piece' },
+  naan: { name: 'naan', displayName: 'Naan', caloriesPerUnit: 260, unit: 'piece' },
+  paratha: { name: 'paratha', displayName: 'Paratha', caloriesPerUnit: 200, unit: 'piece' },
+  puri: { name: 'puri', displayName: 'Puri', caloriesPerUnit: 150, unit: 'piece' },
+  dosa: { name: 'dosa', displayName: 'Dosa', caloriesPerUnit: 170, unit: 'piece' },
+  idli: { name: 'idli', displayName: 'Idli', caloriesPerUnit: 40, unit: 'piece' },
+  uttapam: { name: 'uttapam', displayName: 'Uttapam', caloriesPerUnit: 200, unit: 'piece' },
+  bhatura: { name: 'bhatura', displayName: 'Bhatura', caloriesPerUnit: 300, unit: 'piece' },
+  kulcha: { name: 'kulcha', displayName: 'Kulcha', caloriesPerUnit: 250, unit: 'piece' },
+  appam: { name: 'appam', displayName: 'Appam', caloriesPerUnit: 120, unit: 'piece' },
+
+  // Rice & grains
+  rice: { name: 'rice', displayName: 'Rice', caloriesPerUnit: 200, unit: 'plate' },
+  biryani: { name: 'biryani', displayName: 'Biryani', caloriesPerUnit: 350, unit: 'plate' },
+  pulao: { name: 'pulao', displayName: 'Pulao', caloriesPerUnit: 280, unit: 'plate' },
+  khichdi: { name: 'khichdi', displayName: 'Khichdi', caloriesPerUnit: 200, unit: 'bowl' },
+  upma: { name: 'upma', displayName: 'Upma', caloriesPerUnit: 180, unit: 'bowl' },
+  poha: { name: 'poha', displayName: 'Poha', caloriesPerUnit: 180, unit: 'bowl' },
+  oats: { name: 'oats', displayName: 'Oats', caloriesPerUnit: 150, unit: 'bowl' },
+  pasta: { name: 'pasta', displayName: 'Pasta', caloriesPerUnit: 300, unit: 'plate' },
+  noodles: { name: 'noodles', displayName: 'Noodles', caloriesPerUnit: 280, unit: 'plate' },
+  maggi: { name: 'maggi', displayName: 'Maggi', caloriesPerUnit: 310, unit: 'pack' },
+  bread: { name: 'bread', displayName: 'Bread Slice', caloriesPerUnit: 80, unit: 'slice' },
+  sandwich: { name: 'sandwich', displayName: 'Sandwich', caloriesPerUnit: 250, unit: 'piece' },
+  pizza: { name: 'pizza', displayName: 'Pizza Slice', caloriesPerUnit: 270, unit: 'slice' },
+  burger: { name: 'burger', displayName: 'Burger', caloriesPerUnit: 350, unit: 'piece' },
+
+  // Dals & curries
+  dal: { name: 'dal', displayName: 'Dal', caloriesPerUnit: 150, unit: 'bowl' },
+  sambar: { name: 'sambar', displayName: 'Sambar', caloriesPerUnit: 130, unit: 'bowl' },
+  rasam: { name: 'rasam', displayName: 'Rasam', caloriesPerUnit: 50, unit: 'bowl' },
+  rajma: { name: 'rajma', displayName: 'Rajma', caloriesPerUnit: 180, unit: 'bowl' },
+  chole: { name: 'chole', displayName: 'Chole', caloriesPerUnit: 200, unit: 'bowl' },
+  kadhi: { name: 'kadhi', displayName: 'Kadhi', caloriesPerUnit: 150, unit: 'bowl' },
+  'palak paneer': { name: 'palak paneer', displayName: 'Palak Paneer', caloriesPerUnit: 220, unit: 'bowl' },
+  'paneer butter masala': { name: 'paneer butter masala', displayName: 'Paneer Butter Masala', caloriesPerUnit: 350, unit: 'bowl' },
+  'butter chicken': { name: 'butter chicken', displayName: 'Butter Chicken', caloriesPerUnit: 400, unit: 'bowl' },
+  'chicken curry': { name: 'chicken curry', displayName: 'Chicken Curry', caloriesPerUnit: 300, unit: 'bowl' },
+  'egg curry': { name: 'egg curry', displayName: 'Egg Curry', caloriesPerUnit: 250, unit: 'bowl' },
+  'fish curry': { name: 'fish curry', displayName: 'Fish Curry', caloriesPerUnit: 250, unit: 'bowl' },
+  'aloo gobi': { name: 'aloo gobi', displayName: 'Aloo Gobi', caloriesPerUnit: 180, unit: 'bowl' },
+  'aloo matar': { name: 'aloo matar', displayName: 'Aloo Matar', caloriesPerUnit: 170, unit: 'bowl' },
+  'malai kofta': { name: 'malai kofta', displayName: 'Malai Kofta', caloriesPerUnit: 350, unit: 'bowl' },
+  'dal makhani': { name: 'dal makhani', displayName: 'Dal Makhani', caloriesPerUnit: 250, unit: 'bowl' },
+  'chana masala': { name: 'chana masala', displayName: 'Chana Masala', caloriesPerUnit: 200, unit: 'bowl' },
+  'mix veg': { name: 'mix veg', displayName: 'Mix Veg', caloriesPerUnit: 150, unit: 'bowl' },
+  'bhindi masala': { name: 'bhindi masala', displayName: 'Bhindi Masala', caloriesPerUnit: 130, unit: 'bowl' },
+  'baingan bharta': { name: 'baingan bharta', displayName: 'Baingan Bharta', caloriesPerUnit: 160, unit: 'bowl' },
+
+  // Proteins
+  egg: { name: 'egg', displayName: 'Egg', caloriesPerUnit: 78, unit: 'piece' },
+  'boiled egg': { name: 'boiled egg', displayName: 'Boiled Egg', caloriesPerUnit: 78, unit: 'piece' },
+  omelette: { name: 'omelette', displayName: 'Omelette', caloriesPerUnit: 155, unit: 'piece' },
+  chicken: { name: 'chicken', displayName: 'Chicken', caloriesPerUnit: 250, unit: 'piece' },
+  'chicken breast': { name: 'chicken breast', displayName: 'Chicken Breast', caloriesPerUnit: 165, unit: 'piece' },
+  'tandoori chicken': { name: 'tandoori chicken', displayName: 'Tandoori Chicken', caloriesPerUnit: 260, unit: 'piece' },
+  'chicken tikka': { name: 'chicken tikka', displayName: 'Chicken Tikka', caloriesPerUnit: 150, unit: 'piece' },
+  fish: { name: 'fish', displayName: 'Fish', caloriesPerUnit: 200, unit: 'piece' },
+  'fish fry': { name: 'fish fry', displayName: 'Fish Fry', caloriesPerUnit: 280, unit: 'piece' },
+  paneer: { name: 'paneer', displayName: 'Paneer', caloriesPerUnit: 260, unit: '100g' },
+  tofu: { name: 'tofu', displayName: 'Tofu', caloriesPerUnit: 144, unit: '100g' },
+  mutton: { name: 'mutton', displayName: 'Mutton', caloriesPerUnit: 300, unit: 'piece' },
+  prawn: { name: 'prawn', displayName: 'Prawn', caloriesPerUnit: 85, unit: '100g' },
+  kebab: { name: 'kebab', displayName: 'Kebab', caloriesPerUnit: 200, unit: 'piece' },
+
+  // Fruits
+  banana: { name: 'banana', displayName: 'Banana', caloriesPerUnit: 105, unit: 'piece' },
+  apple: { name: 'apple', displayName: 'Apple', caloriesPerUnit: 95, unit: 'piece' },
+  mango: { name: 'mango', displayName: 'Mango', caloriesPerUnit: 150, unit: 'piece' },
+  orange: { name: 'orange', displayName: 'Orange', caloriesPerUnit: 62, unit: 'piece' },
+  grapes: { name: 'grapes', displayName: 'Grapes', caloriesPerUnit: 70, unit: 'bowl' },
+  watermelon: { name: 'watermelon', displayName: 'Watermelon', caloriesPerUnit: 50, unit: 'slice' },
+  papaya: { name: 'papaya', displayName: 'Papaya', caloriesPerUnit: 60, unit: 'bowl' },
+  pomegranate: { name: 'pomegranate', displayName: 'Pomegranate', caloriesPerUnit: 83, unit: 'piece' },
+  guava: { name: 'guava', displayName: 'Guava', caloriesPerUnit: 37, unit: 'piece' },
+  pineapple: { name: 'pineapple', displayName: 'Pineapple', caloriesPerUnit: 80, unit: 'bowl' },
+  pear: { name: 'pear', displayName: 'Pear', caloriesPerUnit: 100, unit: 'piece' },
+  strawberry: { name: 'strawberry', displayName: 'Strawberry', caloriesPerUnit: 5, unit: 'piece' },
+  kiwi: { name: 'kiwi', displayName: 'Kiwi', caloriesPerUnit: 42, unit: 'piece' },
+  lychee: { name: 'lychee', displayName: 'Lychee', caloriesPerUnit: 7, unit: 'piece' },
+  chiku: { name: 'chiku', displayName: 'Chiku', caloriesPerUnit: 95, unit: 'piece' },
+
+  // Drinks
+  milk: { name: 'milk', displayName: 'Milk', caloriesPerUnit: 120, unit: 'glass' },
+  tea: { name: 'tea', displayName: 'Tea', caloriesPerUnit: 50, unit: 'cup' },
+  coffee: { name: 'coffee', displayName: 'Coffee', caloriesPerUnit: 60, unit: 'cup' },
+  'black coffee': { name: 'black coffee', displayName: 'Black Coffee', caloriesPerUnit: 5, unit: 'cup' },
+  'green tea': { name: 'green tea', displayName: 'Green Tea', caloriesPerUnit: 2, unit: 'cup' },
+  lassi: { name: 'lassi', displayName: 'Lassi', caloriesPerUnit: 180, unit: 'glass' },
+  'mango shake': { name: 'mango shake', displayName: 'Mango Shake', caloriesPerUnit: 250, unit: 'glass' },
+  'banana shake': { name: 'banana shake', displayName: 'Banana Shake', caloriesPerUnit: 220, unit: 'glass' },
+  buttermilk: { name: 'buttermilk', displayName: 'Buttermilk', caloriesPerUnit: 40, unit: 'glass' },
+  juice: { name: 'juice', displayName: 'Juice', caloriesPerUnit: 120, unit: 'glass' },
+  'coconut water': { name: 'coconut water', displayName: 'Coconut Water', caloriesPerUnit: 45, unit: 'glass' },
+  coke: { name: 'coke', displayName: 'Coke', caloriesPerUnit: 140, unit: 'can' },
+  soda: { name: 'soda', displayName: 'Soda', caloriesPerUnit: 140, unit: 'can' },
+  'protein shake': { name: 'protein shake', displayName: 'Protein Shake', caloriesPerUnit: 200, unit: 'scoop' },
+  smoothie: { name: 'smoothie', displayName: 'Smoothie', caloriesPerUnit: 200, unit: 'glass' },
+
+  // Snacks
+  samosa: { name: 'samosa', displayName: 'Samosa', caloriesPerUnit: 250, unit: 'piece' },
+  pakora: { name: 'pakora', displayName: 'Pakora', caloriesPerUnit: 50, unit: 'piece' },
+  vada: { name: 'vada', displayName: 'Vada', caloriesPerUnit: 170, unit: 'piece' },
+  'vada pav': { name: 'vada pav', displayName: 'Vada Pav', caloriesPerUnit: 290, unit: 'piece' },
+  'pav bhaji': { name: 'pav bhaji', displayName: 'Pav Bhaji', caloriesPerUnit: 400, unit: 'plate' },
+  'pani puri': { name: 'pani puri', displayName: 'Pani Puri', caloriesPerUnit: 35, unit: 'piece' },
+  bhel: { name: 'bhel', displayName: 'Bhel', caloriesPerUnit: 200, unit: 'plate' },
+  'sev puri': { name: 'sev puri', displayName: 'Sev Puri', caloriesPerUnit: 250, unit: 'plate' },
+  dhokla: { name: 'dhokla', displayName: 'Dhokla', caloriesPerUnit: 160, unit: 'plate' },
+  kachori: { name: 'kachori', displayName: 'Kachori', caloriesPerUnit: 270, unit: 'piece' },
+  chips: { name: 'chips', displayName: 'Chips', caloriesPerUnit: 150, unit: 'pack' },
+  biscuit: { name: 'biscuit', displayName: 'Biscuit', caloriesPerUnit: 30, unit: 'piece' },
+  cookie: { name: 'cookie', displayName: 'Cookie', caloriesPerUnit: 50, unit: 'piece' },
+  cake: { name: 'cake', displayName: 'Cake', caloriesPerUnit: 250, unit: 'slice' },
+  brownie: { name: 'brownie', displayName: 'Brownie', caloriesPerUnit: 220, unit: 'piece' },
+  chocolate: { name: 'chocolate', displayName: 'Chocolate', caloriesPerUnit: 210, unit: 'bar' },
+  'ice cream': { name: 'ice cream', displayName: 'Ice Cream', caloriesPerUnit: 200, unit: 'scoop' },
+  'french fries': { name: 'french fries', displayName: 'French Fries', caloriesPerUnit: 300, unit: 'plate' },
+  momos: { name: 'momos', displayName: 'Momos', caloriesPerUnit: 40, unit: 'piece' },
+  'spring roll': { name: 'spring roll', displayName: 'Spring Roll', caloriesPerUnit: 130, unit: 'piece' },
+  'fried rice': { name: 'fried rice', displayName: 'Fried Rice', caloriesPerUnit: 320, unit: 'plate' },
+
+  // Sweets
+  gulab_jamun: { name: 'gulab_jamun', displayName: 'Gulab Jamun', caloriesPerUnit: 150, unit: 'piece' },
+  rasgulla: { name: 'rasgulla', displayName: 'Rasgulla', caloriesPerUnit: 130, unit: 'piece' },
+  jalebi: { name: 'jalebi', displayName: 'Jalebi', caloriesPerUnit: 150, unit: 'piece' },
+  laddu: { name: 'laddu', displayName: 'Laddu', caloriesPerUnit: 180, unit: 'piece' },
+  barfi: { name: 'barfi', displayName: 'Barfi', caloriesPerUnit: 160, unit: 'piece' },
+  halwa: { name: 'halwa', displayName: 'Halwa', caloriesPerUnit: 250, unit: 'bowl' },
+  kheer: { name: 'kheer', displayName: 'Kheer', caloriesPerUnit: 200, unit: 'bowl' },
+  payasam: { name: 'payasam', displayName: 'Payasam', caloriesPerUnit: 200, unit: 'bowl' },
+
+  // Dairy
+  curd: { name: 'curd', displayName: 'Curd', caloriesPerUnit: 100, unit: 'bowl' },
+  yogurt: { name: 'yogurt', displayName: 'Yogurt', caloriesPerUnit: 100, unit: 'bowl' },
+  cheese: { name: 'cheese', displayName: 'Cheese', caloriesPerUnit: 110, unit: 'slice' },
+  butter: { name: 'butter', displayName: 'Butter', caloriesPerUnit: 100, unit: 'tbsp' },
+  ghee: { name: 'ghee', displayName: 'Ghee', caloriesPerUnit: 120, unit: 'tbsp' },
+  raita: { name: 'raita', displayName: 'Raita', caloriesPerUnit: 70, unit: 'bowl' },
+
+  // Nuts & seeds
+  almonds: { name: 'almonds', displayName: 'Almonds', caloriesPerUnit: 7, unit: 'piece' },
+  cashew: { name: 'cashew', displayName: 'Cashew', caloriesPerUnit: 9, unit: 'piece' },
+  walnut: { name: 'walnut', displayName: 'Walnut', caloriesPerUnit: 26, unit: 'piece' },
+  peanuts: { name: 'peanuts', displayName: 'Peanuts', caloriesPerUnit: 170, unit: 'handful' },
+  'dry fruits': { name: 'dry fruits', displayName: 'Dry Fruits', caloriesPerUnit: 200, unit: 'handful' },
+
+  // Misc
+  salad: { name: 'salad', displayName: 'Salad', caloriesPerUnit: 50, unit: 'bowl' },
+  soup: { name: 'soup', displayName: 'Soup', caloriesPerUnit: 100, unit: 'bowl' },
+  'peanut butter': { name: 'peanut butter', displayName: 'Peanut Butter', caloriesPerUnit: 190, unit: 'tbsp' },
+  honey: { name: 'honey', displayName: 'Honey', caloriesPerUnit: 60, unit: 'tbsp' },
+  jam: { name: 'jam', displayName: 'Jam', caloriesPerUnit: 50, unit: 'tbsp' },
+  pickle: { name: 'pickle', displayName: 'Pickle', caloriesPerUnit: 10, unit: 'tbsp' },
+  chutney: { name: 'chutney', displayName: 'Chutney', caloriesPerUnit: 30, unit: 'tbsp' },
+  papad: { name: 'papad', displayName: 'Papad', caloriesPerUnit: 45, unit: 'piece' },
+};
+
+// Synonyms map
+export const FOOD_SYNONYMS: Record<string, string> = {
+  chapati: 'roti',
+  chapathi: 'roti',
+  phulka: 'roti',
+  chawal: 'rice',
+  bhaat: 'rice',
+  anda: 'egg',
+  ande: 'egg',
+  eggs: 'egg',
+  doodh: 'milk',
+  chai: 'tea',
+  'masala chai': 'tea',
+  'chai latte': 'tea',
+  'cold coffee': 'coffee',
+  dahi: 'curd',
+  'greek yogurt': 'yogurt',
+  panir: 'paneer',
+  'cottage cheese': 'paneer',
+  murg: 'chicken',
+  murgh: 'chicken',
+  gosht: 'mutton',
+  machli: 'fish',
+  machhi: 'fish',
+  jhinga: 'prawn',
+  prawns: 'prawn',
+  shrimp: 'prawn',
+  rotis: 'roti',
+  parathas: 'paratha',
+  puris: 'puri',
+  naans: 'naan',
+  dosas: 'dosa',
+  idlis: 'idli',
+  samosas: 'samosa',
+  pakoras: 'pakora',
+  pakoda: 'pakora',
+  pakodas: 'pakora',
+  vadas: 'vada',
+  medu_vada: 'vada',
+  bananas: 'banana',
+  apples: 'apple',
+  oranges: 'orange',
+  mangoes: 'mango',
+  cookies: 'cookie',
+  biscuits: 'biscuit',
+  brownies: 'brownie',
+  cakes: 'cake',
+  sandwiches: 'sandwich',
+  burgers: 'burger',
+  pizzas: 'pizza',
+  'gulab jamun': 'gulab_jamun',
+  'gulap jamun': 'gulab_jamun',
+  rasgullas: 'rasgulla',
+  jalebis: 'jalebi',
+  laddus: 'laddu',
+  laddoo: 'laddu',
+  laddoos: 'laddu',
+  barfis: 'barfi',
+  kebabs: 'kebab',
+  seekh: 'kebab',
+  'seekh kebab': 'kebab',
+  kaju: 'cashew',
+  cashews: 'cashew',
+  badam: 'almonds',
+  almond: 'almonds',
+  akhrot: 'walnut',
+  walnuts: 'walnut',
+  mungfali: 'peanuts',
+  peanut: 'peanuts',
+  'french fry': 'french fries',
+  fries: 'french fries',
+  momo: 'momos',
+  dumpling: 'momos',
+  dumplings: 'momos',
+  chhole: 'chole',
+  chickpea: 'chole',
+  chickpeas: 'chole',
+  'rajma chawal': 'rajma',
+  'chole bhature': 'chole',
+  'dal fry': 'dal',
+  'toor dal': 'dal',
+  'moong dal': 'dal',
+  'masoor dal': 'dal',
+  'urad dal': 'dal',
+  'chana dal': 'dal',
+  pepsi: 'coke',
+  'cold drink': 'coke',
+  'soft drink': 'soda',
+  sprite: 'soda',
+  fanta: 'soda',
+  'nimbu pani': 'juice',
+  lemonade: 'juice',
+  'orange juice': 'juice',
+  oj: 'juice',
+  nariyal_pani: 'coconut water',
+  'tender coconut': 'coconut water',
+};
+
+// Custom foods stored by user
+const CUSTOM_FOODS_KEY = 'habit-tracker-custom-foods';
+
+export function getCustomFoods(): Record<string, FoodItem> {
+  try {
+    const data = localStorage.getItem(CUSTOM_FOODS_KEY);
+    return data ? JSON.parse(data) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function saveCustomFood(name: string, calories: number): void {
+  const custom = getCustomFoods();
+  const key = name.toLowerCase().trim();
+  custom[key] = {
+    name: key,
+    displayName: name.charAt(0).toUpperCase() + name.slice(1),
+    caloriesPerUnit: calories,
+    unit: 'serving',
+  };
+  localStorage.setItem(CUSTOM_FOODS_KEY, JSON.stringify(custom));
+}
+
+export function lookupFood(name: string): FoodItem | null {
+  const key = name.toLowerCase().trim();
+  // Direct match
+  if (FOOD_DATABASE[key]) return FOOD_DATABASE[key];
+  // Synonym match
+  const synonym = FOOD_SYNONYMS[key];
+  if (synonym && FOOD_DATABASE[synonym]) return FOOD_DATABASE[synonym];
+  // Custom foods
+  const custom = getCustomFoods();
+  if (custom[key]) return custom[key];
+  // Partial match
+  const dbKeys = Object.keys(FOOD_DATABASE);
+  const partial = dbKeys.find(k => k.includes(key) || key.includes(k));
+  if (partial) return FOOD_DATABASE[partial];
+  return null;
+}
