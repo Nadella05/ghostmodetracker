@@ -1,11 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
-import { Send, Trash2, Flame, AlertCircle } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Send, Trash2, Flame, AlertCircle, Mic, MicOff, Camera, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useCalorieTracker, ChatMessage } from '@/hooks/useCalorieTracker';
 import { saveCustomFood } from '@/data/foodDatabase';
 import { useHabitContext } from '@/contexts/HabitContext';
+import { useVoiceInput } from '@/hooks/useVoiceInput';
 
 export function CalorieChat() {
   const { messages, processInput, addCustomCalorie, getDailyTotal, clearChat } = useCalorieTracker();
@@ -13,10 +14,26 @@ export function CalorieChat() {
   const [input, setInput] = useState('');
   const [pendingCustom, setPendingCustom] = useState<{ name: string } | null>(null);
   const [customCalories, setCustomCalories] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFood, setImageFood] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const dailyTotal = getDailyTotal();
+
+  const handleVoiceResult = useCallback((text: string) => {
+    setInput(text);
+    // Auto-process after short delay so user sees the text
+    setTimeout(() => {
+      if (text.trim()) {
+        processInput(text);
+        setInput('');
+      }
+    }, 500);
+  }, [processInput]);
+
+  const { isListening, isSupported: voiceSupported, toggleListening } = useVoiceInput(handleVoiceResult);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -46,7 +63,25 @@ export function CalorieChat() {
     setCustomCalories('');
   };
 
-  const quickFoods = ['🍌 Banana', '☕ Tea', '🍚 Rice', '🥚 Egg', '🫓 Roti', '🥛 Milk'];
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setImagePreview(ev.target?.result as string);
+      setImageFood('');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageFoodSubmit = () => {
+    if (!imageFood.trim()) return;
+    processInput(imageFood);
+    setImagePreview(null);
+    setImageFood('');
+  };
+
+  const quickFoods = ['🍌 Banana', '☕ Tea', '🍚 Rice', '🥚 Egg', '🫓 Roti', '🥛 Milk', '🍗 Chicken', '🫘 Dal'];
 
   const handleQuickFood = (food: string) => {
     const name = food.replace(/^[^\w]+\s*/, '');
@@ -61,7 +96,6 @@ export function CalorieChat() {
           <p className="text-2xl font-mono font-bold">{dailyTotal} kcal</p>
           <p className="text-xs text-muted-foreground">today's total</p>
         </div>
-
         <div className="flex-1 space-y-2 min-h-[300px] max-h-[400px] overflow-y-auto">
           {messages.filter(m => m.type === 'app' && m.entry).map(msg => (
             <div key={msg.id} className="text-sm font-mono py-1 border-b border-dashed">
@@ -69,7 +103,6 @@ export function CalorieChat() {
             </div>
           ))}
         </div>
-
         <div className="flex gap-2">
           <Input
             ref={inputRef}
@@ -113,8 +146,11 @@ export function CalorieChat() {
         {messages.length === 0 && (
           <div className="text-center py-8">
             <Flame className="h-12 w-12 text-primary/20 mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm mb-4">
+            <p className="text-muted-foreground text-sm mb-1">
               Tell me what you ate, and I'll count the calories!
+            </p>
+            <p className="text-muted-foreground text-xs mb-4">
+              Try: "half plate rice and 2 rotis" or "1/2 biryani"
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {quickFoods.map(food => (
@@ -141,6 +177,33 @@ export function CalorieChat() {
         ))}
         <div ref={bottomRef} />
       </div>
+
+      {/* Image preview */}
+      {imagePreview && (
+        <div className="p-3 border rounded-xl mb-2 bg-muted/50 animate-fade-in">
+          <div className="flex items-start gap-3">
+            <img src={imagePreview} alt="Food" className="w-20 h-20 rounded-lg object-cover" />
+            <div className="flex-1">
+              <div className="flex justify-between items-start">
+                <p className="text-sm font-medium mb-1">What food is this?</p>
+                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setImagePreview(null)}>
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  value={imageFood}
+                  onChange={(e) => setImageFood(e.target.value)}
+                  placeholder="e.g. 2 dosas"
+                  className="flex-1 h-8 text-sm"
+                  onKeyDown={(e) => e.key === 'Enter' && handleImageFoodSubmit()}
+                />
+                <Button size="sm" className="h-8" onClick={handleImageFoodSubmit}>Log</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Custom food entry */}
       {pendingCustom && (
@@ -180,8 +243,24 @@ export function CalorieChat() {
         </div>
       )}
 
-      {/* Input */}
+      {/* Input with voice & camera */}
       <div className="flex gap-2 pt-1">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handleImageUpload}
+        />
+        <Button
+          size="icon"
+          variant="outline"
+          className="shrink-0"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Camera className="h-4 w-4" />
+        </Button>
         <Input
           ref={inputRef}
           value={input}
@@ -190,6 +269,16 @@ export function CalorieChat() {
           placeholder="I ate 2 rotis and dal..."
           className="flex-1"
         />
+        {voiceSupported && (
+          <Button
+            size="icon"
+            variant={isListening ? "destructive" : "outline"}
+            className={cn("shrink-0", isListening && "animate-pulse")}
+            onClick={toggleListening}
+          >
+            {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+          </Button>
+        )}
         <Button size="icon" onClick={handleSend} disabled={!input.trim()}>
           <Send className="h-4 w-4" />
         </Button>
@@ -205,17 +294,19 @@ function MessageBubble({
   message: ChatMessage; 
   onAddCustom: (name: string) => void;
 }) {
+  const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
   if (message.type === 'user') {
     return (
       <div className="flex justify-end">
         <div className="bg-primary text-primary-foreground rounded-2xl rounded-br-md px-4 py-2 max-w-[80%]">
           <p className="text-sm">{message.text}</p>
+          <p className="text-[10px] opacity-60 text-right mt-0.5">{time}</p>
         </div>
       </div>
     );
   }
 
-  // App response
   const { entry, unfoundItems } = message;
 
   return (
@@ -227,7 +318,7 @@ function MessageBubble({
               <div key={i} className="flex justify-between gap-4 text-sm">
                 <span>
                   {item.displayName}
-                  {item.qty > 1 && <span className="text-muted-foreground"> ({item.qty})</span>}
+                  {item.qty !== 1 && <span className="text-muted-foreground"> ({item.qty})</span>}
                 </span>
                 <span className="font-semibold whitespace-nowrap">{item.cal} kcal</span>
               </div>
@@ -263,6 +354,7 @@ function MessageBubble({
             I couldn't understand that. Try something like "2 rotis and dal".
           </p>
         )}
+        <p className="text-[10px] text-muted-foreground mt-1">{time}</p>
       </div>
     </div>
   );
