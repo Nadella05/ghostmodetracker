@@ -19,6 +19,9 @@ const STOP_WORDS = new Set([
   'serving', 'servings',
 ]);
 
+// Weight regex: matches "300g", "150gm", "200gms", "100 grams"
+const WEIGHT_REGEX = /^(\d+(?:\.\d+)?)\s*(?:g|gm|gms|gram|grams)$/i;
+
 // Number words
 const NUMBER_WORDS: Record<string, number> = {
   one: 1, two: 2, three: 3, four: 4, five: 5,
@@ -73,22 +76,41 @@ function parseSegment(segment: string): ParsedFoodItem[] {
   const words = segment.split(/\s+/);
   let qty = 1;
   let qtyFound = false;
+  let weightGrams: number | null = null;
   const foodWords: string[] = [];
 
   for (let i = 0; i < words.length; i++) {
     const word = words[i];
     
+    // Check for weight like "300g", "150gm"
+    const weightMatch = word.match(WEIGHT_REGEX);
+    if (weightMatch) {
+      weightGrams = parseFloat(weightMatch[1]);
+      qtyFound = true;
+      continue;
+    }
+    
+    // Check "300 g" or "300 grams" (number followed by unit)
+    if (i + 1 < words.length && !isNaN(parseFloat(word))) {
+      const nextWord = words[i + 1].toLowerCase();
+      if (['g', 'gm', 'gms', 'gram', 'grams'].includes(nextWord)) {
+        weightGrams = parseFloat(word);
+        qtyFound = true;
+        i++; // skip unit word
+        continue;
+      }
+    }
+
     if (!qtyFound) {
       const q = parseQuantity(word);
       if (q !== null && word !== 'a') {
-        // Check if next word is a fraction (mixed number like "1 1/2")
         if (i + 1 < words.length) {
           const nextQ = parseQuantity(words[i + 1]);
           const nextFrac = words[i + 1].match(FRACTION_REGEX);
           if (nextFrac && nextQ !== null) {
             qty = q + nextQ;
             qtyFound = true;
-            i++; // skip next word
+            i++;
             continue;
           }
         }
@@ -96,7 +118,6 @@ function parseSegment(segment: string): ParsedFoodItem[] {
         qtyFound = true;
         continue;
       }
-      // "half" before food name: "half plate rice"
       if (word === 'half' || word === 'quarter') {
         qty = NUMBER_WORDS[word];
         qtyFound = true;
@@ -116,12 +137,19 @@ function parseSegment(segment: string): ParsedFoodItem[] {
   const food = lookupFood(fullPhrase);
 
   if (food) {
+    let cal: number;
+    if (weightGrams !== null) {
+      // Weight-based: use caloriesPerUnit as per-serving, estimate per 100g
+      cal = Math.round((weightGrams / 100) * food.caloriesPerUnit);
+    } else {
+      cal = Math.round(qty * food.caloriesPerUnit);
+    }
     return [{
       name: food.name,
       displayName: food.displayName,
-      qty,
-      cal: Math.round(qty * food.caloriesPerUnit),
-      unit: food.unit,
+      qty: weightGrams !== null ? weightGrams : qty,
+      cal,
+      unit: weightGrams !== null ? 'g' : food.unit,
       found: true,
     }];
   }

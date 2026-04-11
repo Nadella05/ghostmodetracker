@@ -22,6 +22,7 @@ export interface ChatMessage {
 interface CalorieData {
   entries: Record<string, CalorieEntry[]>;
   customFoods: Record<string, number>;
+  calorieGoal: number;
 }
 
 const STORAGE_KEY = 'habit-tracker-calories';
@@ -29,6 +30,7 @@ const STORAGE_KEY = 'habit-tracker-calories';
 const DEFAULT_DATA: CalorieData = {
   entries: {},
   customFoods: {},
+  calorieGoal: 2000,
 };
 
 export function useCalorieTracker() {
@@ -36,25 +38,23 @@ export function useCalorieTracker() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load from localStorage
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setData(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        setData({ ...DEFAULT_DATA, ...parsed });
       }
     } catch { /* ignore */ }
     setIsLoaded(true);
   }, []);
 
-  // Save to localStorage
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
   }, [data, isLoaded]);
 
-  // Load today's messages on mount
   useEffect(() => {
     if (!isLoaded) return;
     const today = format(new Date(), 'yyyy-MM-dd');
@@ -86,7 +86,6 @@ export function useCalorieTracker() {
     const now = new Date().toISOString();
     const id = Date.now().toString(36);
 
-    // Add user message
     const userMsg: ChatMessage = {
       id: id + '-user',
       type: 'user',
@@ -107,7 +106,6 @@ export function useCalorieTracker() {
       timestamp: now,
     };
 
-    // Save entry
     setData(prev => ({
       ...prev,
       entries: {
@@ -169,10 +167,73 @@ export function useCalorieTracker() {
     setMessages(prev => [...prev, appMsg]);
   }, []);
 
+  const editEntry = useCallback((date: string, entryId: string, newInput: string) => {
+    const parsed = parseCalorieInput(newInput);
+    const foundItems = parsed.filter(i => i.found);
+    const total = foundItems.reduce((sum, i) => sum + i.cal, 0);
+
+    setData(prev => {
+      const dateEntries = [...(prev.entries[date] || [])];
+      const idx = dateEntries.findIndex(e => e.id === entryId);
+      if (idx === -1) return prev;
+
+      dateEntries[idx] = {
+        ...dateEntries[idx],
+        input: newInput,
+        items: foundItems,
+        total,
+      };
+
+      return {
+        ...prev,
+        entries: { ...prev.entries, [date]: dateEntries },
+      };
+    });
+
+    // Update messages if editing today
+    const today = format(new Date(), 'yyyy-MM-dd');
+    if (date === today) {
+      setMessages(prev => prev.map(msg => {
+        if (msg.id === entryId + '-user') {
+          return { ...msg, text: newInput };
+        }
+        if (msg.id === entryId + '-app' && msg.entry) {
+          return {
+            ...msg,
+            entry: { ...msg.entry, input: newInput, items: foundItems, total },
+          };
+        }
+        return msg;
+      }));
+    }
+  }, []);
+
+  const deleteEntry = useCallback((date: string, entryId: string) => {
+    setData(prev => {
+      const dateEntries = (prev.entries[date] || []).filter(e => e.id !== entryId);
+      return {
+        ...prev,
+        entries: { ...prev.entries, [date]: dateEntries },
+      };
+    });
+
+    // Remove from messages if today
+    const today = format(new Date(), 'yyyy-MM-dd');
+    if (date === today) {
+      setMessages(prev => prev.filter(msg =>
+        msg.id !== entryId + '-user' && msg.id !== entryId + '-app'
+      ));
+    }
+  }, []);
+
   const getDailyTotal = useCallback((date?: Date) => {
     const key = format(date || new Date(), 'yyyy-MM-dd');
     const entries = data.entries[key] || [];
     return entries.reduce((sum, e) => sum + e.total, 0);
+  }, [data.entries]);
+
+  const getEntriesForDate = useCallback((date: string) => {
+    return data.entries[date] || [];
   }, [data.entries]);
 
   const clearChat = useCallback(() => {
@@ -193,13 +254,24 @@ export function useCalorieTracker() {
     return result;
   }, [data.entries]);
 
+  const calorieGoal = data.calorieGoal;
+
+  const setCalorieGoal = useCallback((goal: number) => {
+    setData(prev => ({ ...prev, calorieGoal: goal }));
+  }, []);
+
   return {
     messages,
     processInput,
     addCustomCalorie,
+    editEntry,
+    deleteEntry,
     getDailyTotal,
+    getEntriesForDate,
     clearChat,
     getWeeklyCalories,
+    calorieGoal,
+    setCalorieGoal,
     isLoaded,
   };
 }
