@@ -1,30 +1,48 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Trash2, Flame, AlertCircle, Mic, MicOff, Camera, X } from 'lucide-react';
+import { Send, Trash2, Flame, AlertCircle, Mic, MicOff, Camera, X, Pencil, Target, Check } from 'lucide-react';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { useCalorieTracker, ChatMessage } from '@/hooks/useCalorieTracker';
+import { useCalorieTracker, ChatMessage, CalorieEntry } from '@/hooks/useCalorieTracker';
 import { saveCustomFood } from '@/data/foodDatabase';
 import { useHabitContext } from '@/contexts/HabitContext';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 export function CalorieChat() {
-  const { messages, processInput, addCustomCalorie, getDailyTotal, clearChat } = useCalorieTracker();
+  const {
+    messages, processInput, addCustomCalorie, getDailyTotal, clearChat,
+    calorieGoal, setCalorieGoal, editEntry, deleteEntry, getEntriesForDate,
+  } = useCalorieTracker();
   const { isGhostMode } = useHabitContext();
   const [input, setInput] = useState('');
   const [pendingCustom, setPendingCustom] = useState<{ name: string } | null>(null);
   const [customCalories, setCustomCalories] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFood, setImageFood] = useState('');
+  const [goalInput, setGoalInput] = useState('');
+  const [showGoalEdit, setShowGoalEdit] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<{ date: string; entry: CalorieEntry } | null>(null);
+  const [editText, setEditText] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const dailyTotal = getDailyTotal();
+  const goalPercent = Math.min((dailyTotal / calorieGoal) * 100, 100);
+  const remaining = Math.max(calorieGoal - dailyTotal, 0);
+  const today = format(new Date(), 'yyyy-MM-dd');
 
   const handleVoiceResult = useCallback((text: string) => {
     setInput(text);
-    // Auto-process after short delay so user sees the text
     setTimeout(() => {
       if (text.trim()) {
         processInput(text);
@@ -81,6 +99,26 @@ export function CalorieChat() {
     setImageFood('');
   };
 
+  const handleGoalSave = () => {
+    const val = parseInt(goalInput);
+    if (!isNaN(val) && val > 0) {
+      setCalorieGoal(val);
+    }
+    setShowGoalEdit(false);
+    setGoalInput('');
+  };
+
+  const handleEditSave = () => {
+    if (!editingEntry || !editText.trim()) return;
+    editEntry(editingEntry.date, editingEntry.entry.id, editText);
+    setEditingEntry(null);
+    setEditText('');
+  };
+
+  const handleDelete = (entryId: string) => {
+    deleteEntry(today, entryId);
+  };
+
   const quickFoods = ['🍌 Banana', '☕ Tea', '🍚 Rice', '🥚 Egg', '🫓 Roti', '🥛 Milk', '🍗 Chicken', '🫘 Dal'];
 
   const handleQuickFood = (food: string) => {
@@ -88,7 +126,6 @@ export function CalorieChat() {
     processInput(name);
   };
 
-  // Ghost mode: minimal display
   if (isGhostMode) {
     return (
       <div className="space-y-4">
@@ -122,23 +159,65 @@ export function CalorieChat() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)]">
-      {/* Daily total header */}
-      <div className="flex items-center justify-between pb-3 border-b mb-3">
-        <div className="flex items-center gap-2">
-          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Flame className="h-5 w-5 text-primary" />
+      {/* Goal progress header */}
+      <div className="pb-3 border-b mb-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Flame className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{dailyTotal}</p>
+              <p className="text-xs text-muted-foreground">kcal today</p>
+            </div>
           </div>
-          <div>
-            <p className="text-2xl font-bold">{dailyTotal}</p>
-            <p className="text-xs text-muted-foreground">kcal today</p>
+          <div className="flex items-center gap-2">
+            {showGoalEdit ? (
+              <div className="flex items-center gap-1">
+                <Input
+                  type="number"
+                  value={goalInput}
+                  onChange={(e) => setGoalInput(e.target.value)}
+                  placeholder={String(calorieGoal)}
+                  className="w-20 h-8 text-sm"
+                  onKeyDown={(e) => e.key === 'Enter' && handleGoalSave()}
+                />
+                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleGoalSave}>
+                  <Check className="h-3.5 w-3.5" />
+                </Button>
+                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setShowGoalEdit(false)}>
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground text-xs gap-1"
+                onClick={() => { setShowGoalEdit(true); setGoalInput(String(calorieGoal)); }}
+              >
+                <Target className="h-3.5 w-3.5" />
+                Goal: {calorieGoal}
+              </Button>
+            )}
+            {messages.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={clearChat} className="text-muted-foreground">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
-        {messages.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={clearChat} className="text-muted-foreground">
-            <Trash2 className="h-4 w-4 mr-1" />
-            Clear
-          </Button>
-        )}
+        {/* Progress bar */}
+        <div className="space-y-1">
+          <Progress
+            value={goalPercent}
+            className="h-2.5"
+          />
+          <div className="flex justify-between text-[10px] text-muted-foreground">
+            <span>{Math.round(goalPercent)}% of goal</span>
+            <span>{remaining} kcal remaining</span>
+          </div>
+        </div>
       </div>
 
       {/* Chat area */}
@@ -150,7 +229,7 @@ export function CalorieChat() {
               Tell me what you ate, and I'll count the calories!
             </p>
             <p className="text-muted-foreground text-xs mb-4">
-              Try: "half plate rice and 2 rotis" or "1/2 biryani"
+              Try: "300g rice" or "half plate biryani" or "2 rotis"
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {quickFoods.map(food => (
@@ -173,6 +252,11 @@ export function CalorieChat() {
             key={msg.id}
             message={msg}
             onAddCustom={(name) => setPendingCustom({ name })}
+            onEdit={(entry) => {
+              setEditingEntry({ date: today, entry });
+              setEditText(entry.input);
+            }}
+            onDelete={(entryId) => handleDelete(entryId)}
           />
         ))}
         <div ref={bottomRef} />
@@ -266,7 +350,7 @@ export function CalorieChat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="I ate 2 rotis and dal..."
+          placeholder="I ate 300g rice and dal..."
           className="flex-1"
         />
         {voiceSupported && (
@@ -283,16 +367,39 @@ export function CalorieChat() {
           <Send className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Edit dialog */}
+      <Dialog open={!!editingEntry} onOpenChange={(open) => !open && setEditingEntry(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Entry</DialogTitle>
+          </DialogHeader>
+          <Input
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            placeholder="e.g. 2 rotis and dal"
+            onKeyDown={(e) => e.key === 'Enter' && handleEditSave()}
+          />
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setEditingEntry(null)}>Cancel</Button>
+            <Button onClick={handleEditSave}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-function MessageBubble({ 
-  message, 
-  onAddCustom 
-}: { 
-  message: ChatMessage; 
+function MessageBubble({
+  message,
+  onAddCustom,
+  onEdit,
+  onDelete,
+}: {
+  message: ChatMessage;
   onAddCustom: (name: string) => void;
+  onEdit: (entry: CalorieEntry) => void;
+  onDelete: (entryId: string) => void;
 }) {
   const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -318,7 +425,11 @@ function MessageBubble({
               <div key={i} className="flex justify-between gap-4 text-sm">
                 <span>
                   {item.displayName}
-                  {item.qty !== 1 && <span className="text-muted-foreground"> ({item.qty})</span>}
+                  {item.unit === 'g' ? (
+                    <span className="text-muted-foreground"> ({item.qty}g)</span>
+                  ) : item.qty !== 1 ? (
+                    <span className="text-muted-foreground"> ({item.qty})</span>
+                  ) : null}
                 </span>
                 <span className="font-semibold whitespace-nowrap">{item.cal} kcal</span>
               </div>
@@ -329,6 +440,21 @@ function MessageBubble({
                 <span>{entry.total} kcal</span>
               </div>
             )}
+            {/* Edit/Delete buttons */}
+            <div className="flex gap-1 pt-1">
+              <button
+                onClick={() => onEdit(entry)}
+                className="text-muted-foreground hover:text-foreground p-1 rounded transition-colors"
+              >
+                <Pencil className="h-3 w-3" />
+              </button>
+              <button
+                onClick={() => onDelete(entry.id)}
+                className="text-muted-foreground hover:text-destructive p-1 rounded transition-colors"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </div>
           </>
         )}
         {unfoundItems && unfoundItems.length > 0 && (
@@ -351,7 +477,7 @@ function MessageBubble({
         )}
         {(!entry || entry.items.length === 0) && (!unfoundItems || unfoundItems.length === 0) && (
           <p className="text-sm text-muted-foreground">
-            I couldn't understand that. Try something like "2 rotis and dal".
+            I couldn't understand that. Try something like "2 rotis and dal" or "300g rice".
           </p>
         )}
         <p className="text-[10px] text-muted-foreground mt-1">{time}</p>
