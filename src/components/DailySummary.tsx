@@ -79,8 +79,8 @@ export function DailySummary() {
 
       {/* Water */}
       <div className="flex items-center gap-3">
-        <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-          <Droplets className="h-4 w-4 text-blue-500" />
+        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+          <Droplets className="h-4 w-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex justify-between text-sm mb-1">
