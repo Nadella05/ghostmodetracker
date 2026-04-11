@@ -2,6 +2,8 @@ import { cn } from '@/lib/utils';
 import { useHabitContext } from '@/contexts/HabitContext';
 import { CATEGORY_LABELS, HabitCategory, WEEKDAYS } from '@/types/habit';
 import { AchievementsView } from '@/components/AchievementsView';
+import { MonthlyHeatmap } from '@/components/MonthlyHeatmap';
+import { AdvancedStats } from '@/components/AdvancedStats';
 import { XPDisplay } from '@/components/XPDisplay';
 import { 
   TrendingUp, 
@@ -72,6 +74,12 @@ export function AnalyticsView() {
     <div className="space-y-6">
       {/* XP Display */}
       <XPDisplay />
+
+      {/* Monthly Heatmap */}
+      <MonthlyHeatmap />
+
+      {/* Advanced Stats & Calorie Charts */}
+      <AdvancedStats />
       
       {/* Overall Stats */}
       <div className="grid grid-cols-3 gap-3">

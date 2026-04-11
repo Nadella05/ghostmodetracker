@@ -11,6 +11,7 @@ import { SettingsView } from '@/components/SettingsView';
 import { Onboarding } from '@/components/Onboarding';
 import { WaterTracker } from '@/components/WaterTracker';
 import { CalorieChat } from '@/components/CalorieChat';
+import { DailySummary } from '@/components/DailySummary';
 import { XPDisplay } from '@/components/XPDisplay';
 import { Button } from '@/components/ui/button';
 import { Habit, ThemeColor } from '@/types/habit';
@@ -127,6 +128,7 @@ export function Dashboard() {
       <main className="flex-1 container max-w-lg mx-auto px-4 py-6">
         {activeTab === 'today' && (
           <div className="space-y-3">
+            {todaysHabits.length > 0 && <DailySummary />}
             {todaysHabits.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
