@@ -18,7 +18,7 @@ import { DesktopRightPanel } from '@/components/DesktopRightPanel';
 import { Button } from '@/components/ui/button';
 import { Habit, ThemeColor } from '@/types/habit';
 
-type Tab = 'today' | 'water' | 'calories' | 'calendar' | 'analytics' | 'settings';
+type Tab = 'today' | 'water' | 'calories' | 'analytics' | 'settings';
 
 export function Dashboard() {
   const { 
