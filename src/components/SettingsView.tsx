@@ -26,6 +26,7 @@ import { ThemeColorPicker } from '@/components/ThemeColorPicker';
 import { ArchivedHabitsView } from '@/components/ArchivedHabitsView';
 import { AchievementsView } from '@/components/AchievementsView';
 import { XPDisplay } from '@/components/XPDisplay';
+import { BackupSettings } from '@/components/BackupSettings';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -443,6 +444,8 @@ export function SettingsView() {
         <p className="text-xs text-muted-foreground text-center">
           Your data is stored locally on this device.
         </p>
+
+        <BackupSettings />
       </div>
 
       {/* Logout */}
