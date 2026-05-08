@@ -93,7 +93,12 @@ export function Dashboard() {
       {/* Main column */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Header */}
-        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b">
+        <header className={cn(
+          "sticky top-0 z-10 backdrop-blur-lg border-b",
+          isGhostMode
+            ? "bg-background/80"
+            : "bg-gradient-to-r from-background/95 via-primary/5 to-background/95"
+        )}>
           <div className="container max-w-lg lg:max-w-3xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
