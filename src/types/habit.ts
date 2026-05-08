@@ -181,35 +181,73 @@ export const LEVEL_MILESTONES: LevelMilestone[] = [
 
 // Achievements are now in src/data/achievements.ts
 
-// XP calculation helpers
-export function calculateLevel(xp: number): number {
-  for (let i = LEVEL_MILESTONES.length - 1; i >= 0; i--) {
-    if (xp >= LEVEL_MILESTONES[i].xpRequired) {
-      return LEVEL_MILESTONES[i].level;
+// Build a per-level XP requirement table by linearly interpolating between milestones.
+// This ensures every integer level (including ones not explicitly listed as milestones)
+// has a defined XP threshold so the level keeps progressing past 10, 12, 15, etc.
+function buildLevelXPTable(): number[] {
+  const maxLevel = LEVEL_MILESTONES[LEVEL_MILESTONES.length - 1].level;
+  const table: number[] = new Array(maxLevel + 1).fill(0);
+  for (let i = 0; i < LEVEL_MILESTONES.length - 1; i++) {
+    const a = LEVEL_MILESTONES[i];
+    const b = LEVEL_MILESTONES[i + 1];
+    const span = b.level - a.level;
+    const xpSpan = b.xpRequired - a.xpRequired;
+    for (let l = a.level; l <= b.level; l++) {
+      table[l] = Math.round(a.xpRequired + (xpSpan * (l - a.level)) / span);
     }
   }
-  return 1;
+  return table;
+}
+
+const LEVEL_XP_TABLE = buildLevelXPTable();
+const MAX_DEFINED_LEVEL = LEVEL_XP_TABLE.length - 1;
+// XP per level beyond the last milestone (keeps growth going indefinitely).
+const XP_PER_LEVEL_BEYOND_MAX = 50000;
+
+export function xpRequiredForLevel(level: number): number {
+  if (level <= 1) return 0;
+  if (level <= MAX_DEFINED_LEVEL) return LEVEL_XP_TABLE[level];
+  return LEVEL_XP_TABLE[MAX_DEFINED_LEVEL] + (level - MAX_DEFINED_LEVEL) * XP_PER_LEVEL_BEYOND_MAX;
+}
+
+// XP calculation helpers
+export function calculateLevel(xp: number): number {
+  let level = 1;
+  // Walk through defined levels
+  for (let l = 1; l <= MAX_DEFINED_LEVEL; l++) {
+    if (xp >= LEVEL_XP_TABLE[l]) level = l;
+    else return level;
+  }
+  // Beyond the table, add levels at fixed XP increments
+  const extraXP = xp - LEVEL_XP_TABLE[MAX_DEFINED_LEVEL];
+  if (extraXP > 0) {
+    level = MAX_DEFINED_LEVEL + Math.floor(extraXP / XP_PER_LEVEL_BEYOND_MAX);
+  }
+  return level;
 }
 
 export function getXPForNextLevel(currentXP: number): { current: number; required: number; progress: number } {
   const currentLevel = calculateLevel(currentXP);
-  const currentMilestone = LEVEL_MILESTONES.find(m => m.level === currentLevel);
-  const nextMilestone = LEVEL_MILESTONES.find(m => m.level === currentLevel + 1);
-  
-  if (!nextMilestone) {
-    return { current: currentXP, required: currentXP, progress: 100 };
-  }
-  
-  const xpInCurrentLevel = currentXP - (currentMilestone?.xpRequired || 0);
-  const xpNeededForNext = nextMilestone.xpRequired - (currentMilestone?.xpRequired || 0);
-  
+  const currentLevelXP = xpRequiredForLevel(currentLevel);
+  const nextLevelXP = xpRequiredForLevel(currentLevel + 1);
+
+  const xpInCurrentLevel = currentXP - currentLevelXP;
+  const xpNeededForNext = Math.max(1, nextLevelXP - currentLevelXP);
+
   return {
     current: xpInCurrentLevel,
     required: xpNeededForNext,
-    progress: Math.round((xpInCurrentLevel / xpNeededForNext) * 100),
+    progress: Math.min(100, Math.round((xpInCurrentLevel / xpNeededForNext) * 100)),
   };
 }
 
 export function getLevelMilestone(level: number): LevelMilestone {
-  return LEVEL_MILESTONES.find(m => m.level === level) || LEVEL_MILESTONES[0];
+  // Return the highest milestone at or below the given level so titles/icons
+  // are still meaningful for in-between levels (e.g. level 13 uses level 12's title).
+  let match = LEVEL_MILESTONES[0];
+  for (const m of LEVEL_MILESTONES) {
+    if (m.level <= level) match = m;
+    else break;
+  }
+  return match;
 }
