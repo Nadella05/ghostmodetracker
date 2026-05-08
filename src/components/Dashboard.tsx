@@ -192,7 +192,7 @@ export function Dashboard() {
           )}
 
           {activeTab === 'calories' && <CalorieChat />}
-          {/* calendar tab removed */}
+          {activeTab === 'calendar' && <CalendarView />}
           {activeTab === 'analytics' && <AnalyticsView />}
           {activeTab === 'settings' && <SettingsView />}
         </main>
