@@ -1,8 +1,8 @@
-import { Ghost, CheckCircle, Droplets, Flame, BarChart3, Settings, Plus, Trophy } from 'lucide-react';
+import { Ghost, CheckCircle, Droplets, Flame, BarChart3, Settings, Plus, Trophy, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHabitContext } from '@/contexts/HabitContext';
 
-type Tab = 'today' | 'water' | 'calories' | 'analytics' | 'settings';
+type Tab = 'today' | 'water' | 'calories' | 'calendar' | 'analytics' | 'settings';
 
 interface DesktopSidebarProps {
   activeTab: Tab;
@@ -14,6 +14,7 @@ const NAV: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'today',     label: 'Dashboard', icon: <CheckCircle className="h-5 w-5" /> },
   { id: 'water',     label: 'Water',     icon: <Droplets className="h-5 w-5" /> },
   { id: 'calories',  label: 'Calories',  icon: <Flame className="h-5 w-5" /> },
+  { id: 'calendar',  label: 'Calendar',  icon: <CalendarIcon className="h-5 w-5" /> },
   { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="h-5 w-5" /> },
   { id: 'settings',  label: 'Settings',  icon: <Settings className="h-5 w-5" /> },
 ];

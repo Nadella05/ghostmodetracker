@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Trash2, Flame, AlertCircle, Mic, MicOff, Camera, X, Pencil, Target, Check } from 'lucide-react';
-import { format } from 'date-fns';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { Send, Trash2, Flame, AlertCircle, Mic, MicOff, Camera, X, Pencil, Target, Check, CalendarIcon, History } from 'lucide-react';
+import { format, isToday as fnsIsToday } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { useCalorieTracker, ChatMessage, CalorieEntry } from '@/hooks/useCalorieTracker';
 import { saveCustomFood } from '@/data/foodDatabase';
@@ -35,11 +37,18 @@ export function CalorieChat() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [browseDate, setBrowseDate] = useState<Date | null>(null);
 
   const dailyTotal = getDailyTotal();
   const goalPercent = Math.min((dailyTotal / calorieGoal) * 100, 100);
   const remaining = Math.max(calorieGoal - dailyTotal, 0);
   const today = format(new Date(), 'yyyy-MM-dd');
+  const browseKey = browseDate ? format(browseDate, 'yyyy-MM-dd') : null;
+  const browseEntries = useMemo(
+    () => (browseKey ? getEntriesForDate(browseKey) : []),
+    [browseKey, getEntriesForDate]
+  );
+  const browseTotal = browseEntries.reduce((s, e) => s + e.total, 0);
 
   const handleVoiceResult = useCallback((text: string) => {
     setInput(text);
@@ -100,8 +109,8 @@ export function CalorieChat() {
   };
 
   const handleGoalSave = () => {
-    const val = parseInt(goalInput);
-    if (!isNaN(val) && val > 0) {
+    const val = parseInt(goalInput, 10);
+    if (!isNaN(val) && val >= 500 && val <= 10000) {
       setCalorieGoal(val);
     }
     setShowGoalEdit(false);
@@ -159,19 +168,41 @@ export function CalorieChat() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-12rem)]">
-      {/* Goal progress header */}
-      <div className="pb-3 border-b mb-3 space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Flame className="h-5 w-5 text-primary" />
+      {/* Hero gradient header */}
+      <div className="relative overflow-hidden rounded-2xl mb-3 p-4 bg-gradient-to-br from-primary/20 via-primary/5 to-transparent border">
+        <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
+        <div className="relative flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-2xl bg-primary/15 flex items-center justify-center shadow-inner">
+              <Flame className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{dailyTotal}</p>
-              <p className="text-xs text-muted-foreground">kcal today</p>
+              <p className="text-3xl font-bold leading-none tracking-tight">
+                {dailyTotal}
+                <span className="text-base text-muted-foreground font-medium ml-1">kcal</span>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">of {calorieGoal} today · {remaining} left</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5 h-9">
+                  <History className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">History</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="single"
+                  selected={browseDate ?? undefined}
+                  onSelect={(d) => setBrowseDate(d ?? null)}
+                  disabled={(d) => d > new Date()}
+                  initialFocus
+                  className={cn('p-3 pointer-events-auto')}
+                />
+              </PopoverContent>
+            </Popover>
             {showGoalEdit ? (
               <div className="flex items-center gap-1">
                 <Input
@@ -179,46 +210,91 @@ export function CalorieChat() {
                   value={goalInput}
                   onChange={(e) => setGoalInput(e.target.value)}
                   placeholder={String(calorieGoal)}
-                  className="w-20 h-8 text-sm"
+                  className="w-20 h-9 text-sm"
                   onKeyDown={(e) => e.key === 'Enter' && handleGoalSave()}
                 />
-                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleGoalSave}>
-                  <Check className="h-3.5 w-3.5" />
+                <Button size="icon" variant="ghost" className="h-9 w-9" onClick={handleGoalSave}>
+                  <Check className="h-4 w-4" />
                 </Button>
-                <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setShowGoalEdit(false)}>
-                  <X className="h-3.5 w-3.5" />
+                <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => setShowGoalEdit(false)}>
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
             ) : (
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                className="text-muted-foreground text-xs gap-1"
+                className="gap-1.5 h-9"
                 onClick={() => { setShowGoalEdit(true); setGoalInput(String(calorieGoal)); }}
               >
                 <Target className="h-3.5 w-3.5" />
-                Goal: {calorieGoal}
+                <span className="hidden sm:inline">Goal</span>
               </Button>
             )}
-            {messages.length > 0 && (
-              <Button variant="ghost" size="sm" onClick={clearChat} className="text-muted-foreground">
+            {messages.length > 0 && !browseDate && (
+              <Button variant="ghost" size="icon" onClick={clearChat} className="text-muted-foreground h-9 w-9">
                 <Trash2 className="h-4 w-4" />
               </Button>
             )}
           </div>
         </div>
-        {/* Progress bar */}
-        <div className="space-y-1">
-          <Progress
-            value={goalPercent}
-            className="h-2.5"
-          />
+        <div className="relative mt-3 space-y-1">
+          <Progress value={goalPercent} className="h-2" />
           <div className="flex justify-between text-[10px] text-muted-foreground">
             <span>{Math.round(goalPercent)}% of goal</span>
             <span>{remaining} kcal remaining</span>
           </div>
         </div>
       </div>
+
+      {/* Past-day editor */}
+      {browseDate && (
+        <div className="mb-3 rounded-2xl border bg-card p-4 animate-fade-in">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4 text-primary" />
+              <p className="font-semibold text-sm">
+                {format(browseDate, 'EEEE, MMM d')}
+                {fnsIsToday(browseDate) && (
+                  <span className="ml-2 text-[10px] uppercase tracking-wider text-primary">Today</span>
+                )}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-mono font-semibold">{browseTotal} kcal</span>
+              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setBrowseDate(null)}>
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+          {browseEntries.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">No entries logged for this day.</p>
+          ) : (
+            <div className="space-y-2">
+              {browseEntries.map((entry) => (
+                <div key={entry.id} className="flex items-center justify-between gap-2 rounded-lg border bg-background/60 p-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm truncate">{entry.input}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {entry.total} kcal · {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button size="icon" variant="ghost" className="h-7 w-7"
+                      onClick={() => { setEditingEntry({ date: browseKey!, entry }); setEditText(entry.input); }}>
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-7 w-7 hover:text-destructive"
+                      onClick={() => deleteEntry(browseKey!, entry.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Chat area */}
       <div className="flex-1 overflow-y-auto space-y-3 pb-2">

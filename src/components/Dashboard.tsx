@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Calendar, BarChart3, Settings, CheckCircle, Ghost, Droplets, Flame } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, BarChart3, Settings, CheckCircle, Ghost, Droplets, Flame } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useHabitContext } from '@/contexts/HabitContext';
@@ -18,7 +18,7 @@ import { DesktopRightPanel } from '@/components/DesktopRightPanel';
 import { Button } from '@/components/ui/button';
 import { Habit, ThemeColor } from '@/types/habit';
 
-type Tab = 'today' | 'water' | 'calories' | 'analytics' | 'settings';
+type Tab = 'today' | 'water' | 'calories' | 'calendar' | 'analytics' | 'settings';
 
 export function Dashboard() {
   const { 
@@ -76,6 +76,7 @@ export function Dashboard() {
     { id: 'today', label: 'Today', icon: <CheckCircle className="h-5 w-5" /> },
     { id: 'water', label: 'Water', icon: <Droplets className="h-5 w-5" /> },
     { id: 'calories', label: 'Calories', icon: <Flame className="h-5 w-5" /> },
+    { id: 'calendar', label: 'Calendar', icon: <CalendarIcon className="h-5 w-5" /> },
     { id: 'analytics', label: 'Stats', icon: <BarChart3 className="h-5 w-5" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
   ];
@@ -92,7 +93,12 @@ export function Dashboard() {
       {/* Main column */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Header */}
-        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b">
+        <header className={cn(
+          "sticky top-0 z-10 backdrop-blur-lg border-b",
+          isGhostMode
+            ? "bg-background/80"
+            : "bg-gradient-to-r from-background/95 via-primary/5 to-background/95"
+        )}>
           <div className="container max-w-lg lg:max-w-3xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
@@ -106,7 +112,7 @@ export function Dashboard() {
                     )}
                     {activeTab === 'water' && 'Hydration'}
                     {activeTab === 'calories' && 'Calories'}
-                    {/* calendar tab removed */}
+                    {activeTab === 'calendar' && 'Calendar'}
                     {activeTab === 'analytics' && 'Analytics'}
                     {activeTab === 'settings' && 'Settings'}
                   </h1>
@@ -191,7 +197,7 @@ export function Dashboard() {
           )}
 
           {activeTab === 'calories' && <CalorieChat />}
-          {/* calendar tab removed */}
+          {activeTab === 'calendar' && <CalendarView />}
           {activeTab === 'analytics' && <AnalyticsView />}
           {activeTab === 'settings' && <SettingsView />}
         </main>
