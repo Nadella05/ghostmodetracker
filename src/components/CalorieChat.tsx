@@ -37,11 +37,18 @@ export function CalorieChat() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [browseDate, setBrowseDate] = useState<Date | null>(null);
 
   const dailyTotal = getDailyTotal();
   const goalPercent = Math.min((dailyTotal / calorieGoal) * 100, 100);
   const remaining = Math.max(calorieGoal - dailyTotal, 0);
   const today = format(new Date(), 'yyyy-MM-dd');
+  const browseKey = browseDate ? format(browseDate, 'yyyy-MM-dd') : null;
+  const browseEntries = useMemo(
+    () => (browseKey ? getEntriesForDate(browseKey) : []),
+    [browseKey, getEntriesForDate]
+  );
+  const browseTotal = browseEntries.reduce((s, e) => s + e.total, 0);
 
   const handleVoiceResult = useCallback((text: string) => {
     setInput(text);
