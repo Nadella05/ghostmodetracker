@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Trash2, Flame, AlertCircle, Mic, MicOff, Camera, X, Pencil, Target, Check } from 'lucide-react';
-import { format } from 'date-fns';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { Send, Trash2, Flame, AlertCircle, Mic, MicOff, Camera, X, Pencil, Target, Check, CalendarIcon, History } from 'lucide-react';
+import { format, isToday as fnsIsToday } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { useCalorieTracker, ChatMessage, CalorieEntry } from '@/hooks/useCalorieTracker';
 import { saveCustomFood } from '@/data/foodDatabase';
