@@ -76,6 +76,7 @@ export function Dashboard() {
     { id: 'today', label: 'Today', icon: <CheckCircle className="h-5 w-5" /> },
     { id: 'water', label: 'Water', icon: <Droplets className="h-5 w-5" /> },
     { id: 'calories', label: 'Calories', icon: <Flame className="h-5 w-5" /> },
+    { id: 'calendar', label: 'Calendar', icon: <CalendarIcon className="h-5 w-5" /> },
     { id: 'analytics', label: 'Stats', icon: <BarChart3 className="h-5 w-5" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
   ];
