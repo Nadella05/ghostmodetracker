@@ -107,7 +107,7 @@ export function Dashboard() {
                     )}
                     {activeTab === 'water' && 'Hydration'}
                     {activeTab === 'calories' && 'Calories'}
-                    {/* calendar tab removed */}
+                    {activeTab === 'calendar' && 'Calendar'}
                     {activeTab === 'analytics' && 'Analytics'}
                     {activeTab === 'settings' && 'Settings'}
                   </h1>
