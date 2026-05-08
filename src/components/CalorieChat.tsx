@@ -109,8 +109,8 @@ export function CalorieChat() {
   };
 
   const handleGoalSave = () => {
-    const val = parseInt(goalInput);
-    if (!isNaN(val) && val > 0) {
+    const val = parseInt(goalInput, 10);
+    if (!isNaN(val) && val >= 500 && val <= 10000) {
       setCalorieGoal(val);
     }
     setShowGoalEdit(false);
