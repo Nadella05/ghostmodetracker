@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Calendar, BarChart3, Settings, CheckCircle, Ghost, Droplets, Flame } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, BarChart3, Settings, CheckCircle, Ghost, Droplets, Flame } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useHabitContext } from '@/contexts/HabitContext';
