@@ -11,6 +11,10 @@ import { useCalorieTracker, ChatMessage, CalorieEntry } from '@/hooks/useCalorie
 import { saveCustomFood } from '@/data/foodDatabase';
 import { useHabitContext } from '@/contexts/HabitContext';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { MacroDashboard } from '@/components/MacroDashboard';
+import { WeightProjection } from '@/components/WeightProjection';
+import { computeTargets, DEFAULT_HEALTH_PROFILE, HealthProfile } from '@/lib/nutritionTargets';
+import { buildInsights } from '@/lib/nutritionInsights';
 import {
   Dialog,
   DialogContent,
@@ -21,10 +25,10 @@ import {
 
 export function CalorieChat() {
   const {
-    messages, processInput, addCustomCalorie, getDailyTotal, clearChat,
+    messages, processInput, addCustomCalorie, getDailyTotal, getDailyMacros, clearChat,
     calorieGoal, setCalorieGoal, editEntry, deleteEntry, getEntriesForDate,
   } = useCalorieTracker();
-  const { isGhostMode } = useHabitContext();
+  const { isGhostMode, profile } = useHabitContext();
   const [input, setInput] = useState('');
   const [pendingCustom, setPendingCustom] = useState<{ name: string } | null>(null);
   const [customCalories, setCustomCalories] = useState('');
