@@ -44,6 +44,7 @@ export function CalorieChat() {
   const [browseDate, setBrowseDate] = useState<Date | null>(null);
 
   const dailyTotal = getDailyTotal();
+  const dailyMacros = getDailyMacros();
   const goalPercent = Math.min((dailyTotal / calorieGoal) * 100, 100);
   const remaining = Math.max(calorieGoal - dailyTotal, 0);
   const today = format(new Date(), 'yyyy-MM-dd');
@@ -53,6 +54,21 @@ export function CalorieChat() {
     [browseKey, getEntriesForDate]
   );
   const browseTotal = browseEntries.reduce((s, e) => s + e.total, 0);
+
+  // Health profile (falls back to defaults if user hasn't set one in Settings)
+  const healthProfile: HealthProfile = {
+    weightKg: profile.weightKg ?? DEFAULT_HEALTH_PROFILE.weightKg,
+    heightCm: profile.heightCm ?? DEFAULT_HEALTH_PROFILE.heightCm,
+    age: profile.age ?? DEFAULT_HEALTH_PROFILE.age,
+    gender: profile.gender ?? DEFAULT_HEALTH_PROFILE.gender,
+    activityLevel: profile.activityLevel ?? DEFAULT_HEALTH_PROFILE.activityLevel,
+    weightGoal: profile.weightGoal ?? DEFAULT_HEALTH_PROFILE.weightGoal,
+  };
+  const targets = useMemo(() => {
+    const t = computeTargets(healthProfile);
+    return { ...t, calories: calorieGoal || t.calories };
+  }, [healthProfile.weightKg, healthProfile.heightCm, healthProfile.age, healthProfile.gender, healthProfile.activityLevel, healthProfile.weightGoal, calorieGoal]);
+  const insights = useMemo(() => buildInsights(dailyMacros, targets), [dailyMacros, targets]);
 
   const handleVoiceResult = useCallback((text: string) => {
     setInput(text);
