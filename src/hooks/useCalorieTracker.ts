@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
 import { format } from 'date-fns';
 import { parseCalorieInput, ParsedFoodItem } from '@/lib/calorieParser';
+import { estimateMacros, sumMacros, ZERO_MACROS, Macros } from '@/lib/macroEstimator';
 
 export interface CalorieEntry {
   id: string;
