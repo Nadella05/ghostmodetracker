@@ -224,6 +224,20 @@ export function useCalorieTracker() {
     return entries.reduce((sum, e) => sum + e.total, 0);
   }, [data.entries]);
 
+  const getDailyMacros = useCallback((date?: Date): Macros & { calories: number } => {
+    const key = format(date || new Date(), 'yyyy-MM-dd');
+    const entries = data.entries[key] || [];
+    const macrosList: Macros[] = [];
+    let calories = 0;
+    for (const e of entries) {
+      calories += e.total;
+      for (const item of e.items) {
+        macrosList.push(item.macros || ZERO_MACROS);
+      }
+    }
+    return { ...sumMacros(macrosList), calories };
+  }, [data.entries]);
+
   const getEntriesForDate = useCallback((date: string) => {
     return data.entries[date] || [];
   }, [data.entries]);
@@ -257,6 +271,7 @@ export function useCalorieTracker() {
     editEntry,
     deleteEntry,
     getDailyTotal,
+    getDailyMacros,
     getEntriesForDate,
     clearChat,
     getWeeklyCalories,
