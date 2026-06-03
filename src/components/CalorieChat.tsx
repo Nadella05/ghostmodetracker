@@ -162,7 +162,8 @@ export function CalorieChat() {
           <p className="text-2xl font-mono font-bold">{dailyTotal} kcal</p>
           <p className="text-xs text-muted-foreground">today's total</p>
         </div>
-        <div className="flex-1 space-y-2 min-h-[300px] max-h-[400px] overflow-y-auto">
+        <MacroDashboard totals={dailyMacros} targets={targets} ghost />
+        <div className="flex-1 space-y-2 min-h-[240px] max-h-[400px] overflow-y-auto">
           {messages.filter(m => m.type === 'app' && m.entry).map(msg => (
             <div key={msg.id} className="text-sm font-mono py-1 border-b border-dashed">
               Total: {msg.entry!.total} kcal
