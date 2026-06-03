@@ -11,6 +11,10 @@ import { useCalorieTracker, ChatMessage, CalorieEntry } from '@/hooks/useCalorie
 import { saveCustomFood } from '@/data/foodDatabase';
 import { useHabitContext } from '@/contexts/HabitContext';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
+import { MacroDashboard } from '@/components/MacroDashboard';
+import { WeightProjection } from '@/components/WeightProjection';
+import { computeTargets, DEFAULT_HEALTH_PROFILE, HealthProfile } from '@/lib/nutritionTargets';
+import { buildInsights } from '@/lib/nutritionInsights';
 import {
   Dialog,
   DialogContent,
@@ -21,10 +25,10 @@ import {
 
 export function CalorieChat() {
   const {
-    messages, processInput, addCustomCalorie, getDailyTotal, clearChat,
+    messages, processInput, addCustomCalorie, getDailyTotal, getDailyMacros, clearChat,
     calorieGoal, setCalorieGoal, editEntry, deleteEntry, getEntriesForDate,
   } = useCalorieTracker();
-  const { isGhostMode } = useHabitContext();
+  const { isGhostMode, profile } = useHabitContext();
   const [input, setInput] = useState('');
   const [pendingCustom, setPendingCustom] = useState<{ name: string } | null>(null);
   const [customCalories, setCustomCalories] = useState('');
@@ -40,6 +44,7 @@ export function CalorieChat() {
   const [browseDate, setBrowseDate] = useState<Date | null>(null);
 
   const dailyTotal = getDailyTotal();
+  const dailyMacros = getDailyMacros();
   const goalPercent = Math.min((dailyTotal / calorieGoal) * 100, 100);
   const remaining = Math.max(calorieGoal - dailyTotal, 0);
   const today = format(new Date(), 'yyyy-MM-dd');
@@ -49,6 +54,21 @@ export function CalorieChat() {
     [browseKey, getEntriesForDate]
   );
   const browseTotal = browseEntries.reduce((s, e) => s + e.total, 0);
+
+  // Health profile (falls back to defaults if user hasn't set one in Settings)
+  const healthProfile: HealthProfile = {
+    weightKg: profile.weightKg ?? DEFAULT_HEALTH_PROFILE.weightKg,
+    heightCm: profile.heightCm ?? DEFAULT_HEALTH_PROFILE.heightCm,
+    age: profile.age ?? DEFAULT_HEALTH_PROFILE.age,
+    gender: profile.gender ?? DEFAULT_HEALTH_PROFILE.gender,
+    activityLevel: profile.activityLevel ?? DEFAULT_HEALTH_PROFILE.activityLevel,
+    weightGoal: profile.weightGoal ?? DEFAULT_HEALTH_PROFILE.weightGoal,
+  };
+  const targets = useMemo(() => {
+    const t = computeTargets(healthProfile);
+    return { ...t, calories: calorieGoal || t.calories };
+  }, [healthProfile.weightKg, healthProfile.heightCm, healthProfile.age, healthProfile.gender, healthProfile.activityLevel, healthProfile.weightGoal, calorieGoal]);
+  const insights = useMemo(() => buildInsights(dailyMacros, targets), [dailyMacros, targets]);
 
   const handleVoiceResult = useCallback((text: string) => {
     setInput(text);
@@ -142,7 +162,8 @@ export function CalorieChat() {
           <p className="text-2xl font-mono font-bold">{dailyTotal} kcal</p>
           <p className="text-xs text-muted-foreground">today's total</p>
         </div>
-        <div className="flex-1 space-y-2 min-h-[300px] max-h-[400px] overflow-y-auto">
+        <MacroDashboard totals={dailyMacros} targets={targets} ghost />
+        <div className="flex-1 space-y-2 min-h-[240px] max-h-[400px] overflow-y-auto">
           {messages.filter(m => m.type === 'app' && m.entry).map(msg => (
             <div key={msg.id} className="text-sm font-mono py-1 border-b border-dashed">
               Total: {msg.entry!.total} kcal
@@ -246,6 +267,35 @@ export function CalorieChat() {
           </div>
         </div>
       </div>
+
+      {/* Macro nutrition dashboard */}
+      <div className="mb-3">
+        <MacroDashboard totals={dailyMacros} targets={targets} />
+      </div>
+
+      {/* Weight projection */}
+      <div className="mb-3">
+        <WeightProjection profile={healthProfile} todayIntake={dailyTotal} />
+      </div>
+
+      {/* Insights */}
+      {insights.length > 0 && (
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {insights.map(i => (
+            <span
+              key={i.id}
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px]',
+                i.tone === 'good' && 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+                i.tone === 'warn' && 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+                i.tone === 'info' && 'border-muted-foreground/20 bg-muted/50',
+              )}
+            >
+              <span>{i.icon}</span>{i.text}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Past-day editor */}
       {browseDate && (

@@ -54,6 +54,7 @@ interface HabitContextType {
     resetToday: () => void;
     getProgress: () => { intake: number; goal: number; percentage: number; isGoalMet: boolean };
     getWeeklyStats: () => { date: string; intake: number; goal: number }[];
+    getIntakeForDate: (date: Date) => number;
   };
 
   // XP System
@@ -96,6 +97,7 @@ export function HabitProvider({ children }: { children: ReactNode }) {
       resetToday: waterTrackerData.resetToday,
       getProgress: waterTrackerData.getProgress,
       getWeeklyStats: waterTrackerData.getWeeklyStats,
+      getIntakeForDate: waterTrackerData.getIntakeForDate,
     },
     xpSystem: {
       awardCompletionXP: xpSystemData.awardCompletionXP,

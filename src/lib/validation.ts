@@ -56,6 +56,12 @@ export const UserProfileSchema = z.object({
   xp: z.number().min(0).max(1000000),
   level: z.number().min(1).max(100),
   unlockedAchievements: z.array(z.string().max(50)),
+  weightKg: z.number().min(20).max(500).optional(),
+  heightCm: z.number().min(80).max(260).optional(),
+  age: z.number().min(5).max(120).optional(),
+  gender: z.enum(['male', 'female', 'other']).optional(),
+  activityLevel: z.enum(['sedentary', 'light', 'moderate', 'very']).optional(),
+  weightGoal: z.enum(['lose', 'maintain', 'gain']).optional(),
 });
 
 // App settings validation schema

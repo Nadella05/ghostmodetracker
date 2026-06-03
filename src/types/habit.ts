@@ -62,6 +62,13 @@ export interface UserProfile {
   xp: number;
   level: number;
   unlockedAchievements: string[];
+  // Health profile (all optional — populated from Settings)
+  weightKg?: number;
+  heightCm?: number;
+  age?: number;
+  gender?: 'male' | 'female' | 'other';
+  activityLevel?: 'sedentary' | 'light' | 'moderate' | 'very';
+  weightGoal?: 'lose' | 'maintain' | 'gain';
 }
 
 export interface AppSettings {

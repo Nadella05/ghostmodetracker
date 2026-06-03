@@ -27,6 +27,7 @@ import { ArchivedHabitsView } from '@/components/ArchivedHabitsView';
 import { AchievementsView } from '@/components/AchievementsView';
 import { XPDisplay } from '@/components/XPDisplay';
 import { BackupSettings } from '@/components/BackupSettings';
+import { HealthProfileSection } from '@/components/HealthProfileSection';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -248,6 +249,8 @@ export function SettingsView() {
           </div>
         </div>
       </div>
+
+      <HealthProfileSection />
 
       {/* Achievements (Normal Mode only) */}
       {!isGhostMode && (

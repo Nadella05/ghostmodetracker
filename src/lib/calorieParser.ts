@@ -1,4 +1,5 @@
 import { lookupFood } from '@/data/foodDatabase';
+import { estimateMacros, Macros, ZERO_MACROS } from './macroEstimator';
 
 export interface ParsedFoodItem {
   name: string;
@@ -7,7 +8,11 @@ export interface ParsedFoodItem {
   cal: number;
   unit: string;
   found: boolean;
+  macros?: Macros;
 }
+
+// Wrap the original parser to attach macros to every found item.
+// (We patch at the end of this module via a re-export wrapper.)
 
 const STOP_WORDS = new Set([
   'i', 'ate', 'had', 'have', 'eaten', 'drink', 'drank',
@@ -65,6 +70,13 @@ export function parseCalorieInput(input: string): ParsedFoodItem[] {
   for (const segment of segments) {
     const items = parseSegment(segment.trim());
     results.push(...items);
+  }
+
+  // Attach macro estimates to every found item.
+  for (const item of results) {
+    item.macros = item.found && item.cal > 0
+      ? estimateMacros(item.name, item.cal)
+      : ZERO_MACROS;
   }
 
   return results;
