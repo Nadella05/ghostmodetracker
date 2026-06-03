@@ -23,7 +23,7 @@ export function HydrationAnalytics() {
     const best = month.reduce((b, d) => (d.intake > b.intake ? d : b), month[0]);
     const consistency = Math.round((month.filter(d => d.met).length / 30) * 100);
 
-    return { week, weekAvg, monthAvg, best, consistency };
+    return { week, month, weekAvg, monthAvg, best, consistency };
   }, [waterTracker]);
 
   // Hydration achievements (derived inline; no XP integration)
