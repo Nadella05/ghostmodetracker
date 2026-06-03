@@ -54,6 +54,7 @@ interface HabitContextType {
     resetToday: () => void;
     getProgress: () => { intake: number; goal: number; percentage: number; isGoalMet: boolean };
     getWeeklyStats: () => { date: string; intake: number; goal: number }[];
+    getIntakeForDate: (date: Date) => number;
   };
 
   // XP System
