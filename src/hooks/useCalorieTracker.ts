@@ -160,6 +160,7 @@ export function useCalorieTracker() {
       cal: calories,
       unit: 'serving',
       found: true,
+      macros: estimateMacros(name, calories),
     };
 
     const entry: CalorieEntry = {
