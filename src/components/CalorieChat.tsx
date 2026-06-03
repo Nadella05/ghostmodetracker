@@ -268,6 +268,35 @@ export function CalorieChat() {
         </div>
       </div>
 
+      {/* Macro nutrition dashboard */}
+      <div className="mb-3">
+        <MacroDashboard totals={dailyMacros} targets={targets} />
+      </div>
+
+      {/* Weight projection */}
+      <div className="mb-3">
+        <WeightProjection profile={healthProfile} todayIntake={dailyTotal} />
+      </div>
+
+      {/* Insights */}
+      {insights.length > 0 && (
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {insights.map(i => (
+            <span
+              key={i.id}
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px]',
+                i.tone === 'good' && 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+                i.tone === 'warn' && 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+                i.tone === 'info' && 'border-muted-foreground/20 bg-muted/50',
+              )}
+            >
+              <span>{i.icon}</span>{i.text}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Past-day editor */}
       {browseDate && (
         <div className="mb-3 rounded-2xl border bg-card p-4 animate-fade-in">
