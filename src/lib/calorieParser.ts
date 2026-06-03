@@ -72,6 +72,13 @@ export function parseCalorieInput(input: string): ParsedFoodItem[] {
     results.push(...items);
   }
 
+  // Attach macro estimates to every found item.
+  for (const item of results) {
+    item.macros = item.found && item.cal > 0
+      ? estimateMacros(item.name, item.cal)
+      : ZERO_MACROS;
+  }
+
   return results;
 }
 
