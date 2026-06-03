@@ -3,6 +3,8 @@ import { Droplets, Plus, Minus, Target, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useHabitContext } from '@/contexts/HabitContext';
+import { LiquidContainer } from '@/components/LiquidContainer';
+import { HydrationAnalytics } from '@/components/HydrationAnalytics';
 import {
   Select,
   SelectContent,
@@ -39,178 +41,127 @@ export function WaterTracker({
   setDailyGoal,
   resetToday,
   getProgress,
-  getWeeklyStats,
 }: WaterTrackerProps) {
   const { isGhostMode } = useHabitContext();
   const progress = getProgress();
-  const weeklyStats = getWeeklyStats();
-  
   const [customAmount, setCustomAmount] = useState(250);
+  const [pourTrigger, setPourTrigger] = useState(0);
 
   const quickAmounts = [250, 500, 750];
   const goalOptions = [1500, 2000, 2500, 3000, 3500, 4000];
+  const remaining = Math.max(0, dailyGoal - todayIntake);
 
-  // Calculate stroke properties for circular progress
-  const radius = 80;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progress.percentage / 100) * circumference;
+  const handleAdd = (amount: number) => {
+    addWater(amount);
+    setPourTrigger(t => t + 1);
+  };
 
   return (
     <div className="space-y-6">
-      {/* Main Progress Ring */}
-      <div className="flex flex-col items-center py-4">
-        <div className="relative">
-          <svg
-            width="200"
-            height="200"
-            viewBox="0 0 200 200"
-            className="transform -rotate-90"
-          >
-            {/* Background circle */}
-            <circle
-              cx="100"
-              cy="100"
-              r={radius}
-              fill="none"
-              stroke="hsl(var(--secondary))"
-              strokeWidth="12"
-            />
-            {/* Progress circle */}
-            <circle
-              cx="100"
-              cy="100"
-              r={radius}
-              fill="none"
-              stroke={isGhostMode ? "hsl(var(--muted-foreground))" : "hsl(var(--primary))"}
-              strokeWidth="12"
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              className={cn(
-                "transition-all duration-500",
-                !isGhostMode && "drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]"
-              )}
-            />
-          </svg>
-          
-          {/* Center content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <Droplets className={cn(
-              "h-8 w-8 mb-1",
-              isGhostMode ? "text-muted-foreground" : "text-primary"
-            )} />
-            <span className="text-3xl font-bold">{todayIntake}</span>
-            <span className="text-sm text-muted-foreground">/ {dailyGoal} ml</span>
+      {/* Immersive liquid container */}
+      <LiquidContainer
+        percentage={progress.percentage}
+        pourTrigger={pourTrigger}
+        ghost={isGhostMode}
+        className="h-[360px] sm:h-[420px]"
+      >
+        <div className="absolute inset-0 flex flex-col items-center justify-between p-5">
+          {/* Top dashboard */}
+          <div className={cn(
+            'w-full rounded-2xl border px-4 py-3 backdrop-blur-md',
+            isGhostMode
+              ? 'bg-card/80 border-border'
+              : 'bg-white/70 dark:bg-card/70 border-white/40 shadow-lg shadow-sky-500/10'
+          )}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Droplets className={cn('h-5 w-5', isGhostMode ? 'text-muted-foreground' : 'text-sky-500')} />
+                <span className="text-sm font-semibold">Hydration</span>
+              </div>
+              <span className={cn(
+                'text-sm font-bold tabular-nums',
+                progress.isGoalMet && !isGhostMode && 'text-sky-500'
+              )}>
+                {progress.percentage}%
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mt-2 text-center">
+              <Stat label="Current" value={`${todayIntake}`} unit="ml" />
+              <Stat label="Goal" value={`${dailyGoal}`} unit="ml" />
+              <Stat label="Left" value={`${remaining}`} unit="ml" />
+            </div>
+          </div>
+
+          {/* Center reading */}
+          <div className={cn(
+            'text-center pointer-events-none transition-transform',
+            !isGhostMode && 'drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]'
+          )}>
+            <div className={cn(
+              'text-5xl sm:text-6xl font-extrabold tabular-nums leading-none',
+              !isGhostMode && progress.percentage > 30 ? 'text-white' : ''
+            )}>
+              {todayIntake}
+              <span className="text-lg font-medium opacity-80 ml-1">ml</span>
+            </div>
+            <p className={cn(
+              'text-xs uppercase tracking-widest mt-1',
+              !isGhostMode && progress.percentage > 30 ? 'text-white/80' : 'text-muted-foreground'
+            )}>
+              {progress.isGoalMet ? 'Goal achieved' : `${remaining} ml to goal`}
+            </p>
+          </div>
+
+          {/* Quick add chips */}
+          <div className="flex items-center gap-2 w-full justify-center">
+            {quickAmounts.map(amt => (
+              <Button
+                key={amt}
+                size="sm"
+                variant="secondary"
+                className={cn(
+                  'rounded-full px-4 backdrop-blur-md',
+                  !isGhostMode && 'bg-white/80 hover:bg-white dark:bg-card/80 shadow'
+                )}
+                onClick={() => handleAdd(amt)}
+              >
+                +{amt}
+              </Button>
+            ))}
           </div>
         </div>
+      </LiquidContainer>
 
-        {/* Progress percentage */}
-        <div className={cn(
-          "mt-4 text-center",
-          progress.isGoalMet && !isGhostMode && "text-primary"
-        )}>
-          <span className="text-lg font-medium">{progress.percentage}%</span>
-          <p className="text-sm text-muted-foreground">
-            {progress.isGoalMet ? 'Goal achieved!' : `${dailyGoal - todayIntake} ml to go`}
-          </p>
-        </div>
+      {/* Custom amount */}
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="icon" onClick={() => setCustomAmount(Math.max(50, customAmount - 50))}>
+          <Minus className="h-4 w-4" />
+        </Button>
+        <Button variant="secondary" className="flex-1 h-12" onClick={() => handleAdd(customAmount)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add {customAmount} ml
+        </Button>
+        <Button variant="outline" size="icon" onClick={() => setCustomAmount(Math.min(1000, customAmount + 50))}>
+          <Plus className="h-4 w-4" />
+        </Button>
       </div>
 
-      {/* Quick Add Buttons */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          Quick Add
-        </h3>
-        <div className="grid grid-cols-3 gap-3">
-          {quickAmounts.map((amount) => (
-            <Button
-              key={amount}
-              variant="outline"
-              className="h-14 flex flex-col gap-0.5"
-              onClick={() => addWater(amount)}
-            >
-              <Plus className="h-4 w-4" />
-              <span className="text-sm font-medium">{amount} ml</span>
-            </Button>
-          ))}
-        </div>
-
-        {/* Custom amount */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setCustomAmount(Math.max(50, customAmount - 50))}
-          >
-            <Minus className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="secondary"
-            className="flex-1 h-12"
-            onClick={() => addWater(customAmount)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {customAmount} ml
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setCustomAmount(Math.min(1000, customAmount + 50))}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Weekly Stats */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          This Week
-        </h3>
-        <div className="flex items-end justify-between gap-1 h-24">
-          {weeklyStats.map((day, i) => {
-            const dayPercentage = Math.min(100, Math.round((day.intake / day.goal) * 100));
-            const height = Math.max(8, (dayPercentage / 100) * 80);
-            return (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <div
-                  className={cn(
-                    "w-full rounded-t-md transition-all",
-                    dayPercentage >= 100 
-                      ? isGhostMode ? "bg-muted-foreground" : "bg-primary"
-                      : "bg-secondary"
-                  )}
-                  style={{ height: `${height}px` }}
-                />
-                <span className="text-xs text-muted-foreground">{day.date}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {/* Analytics */}
+      <HydrationAnalytics />
 
       {/* Settings */}
       <div className="space-y-3">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-          Settings
-        </h3>
-        <div className="flex items-center justify-between rounded-lg border bg-card p-4">
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Settings</h3>
+        <div className="flex items-center justify-between rounded-xl border bg-card p-4">
           <div className="flex items-center gap-2">
             <Target className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium">Daily Goal</span>
           </div>
-          <Select
-            value={dailyGoal.toString()}
-            onValueChange={(v) => setDailyGoal(parseInt(v))}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
+          <Select value={dailyGoal.toString()} onValueChange={(v) => setDailyGoal(parseInt(v))}>
+            <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
             <SelectContent>
               {goalOptions.map((goal) => (
-                <SelectItem key={goal} value={goal.toString()}>
-                  {goal} ml
-                </SelectItem>
+                <SelectItem key={goal} value={goal.toString()}>{goal} ml</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -237,6 +188,15 @@ export function WaterTracker({
           </AlertDialogContent>
         </AlertDialog>
       </div>
+    </div>
+  );
+}
+
+function Stat({ label, value, unit }: { label: string; value: string; unit: string }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="text-sm font-bold tabular-nums">{value}<span className="text-[10px] font-medium text-muted-foreground ml-0.5">{unit}</span></div>
     </div>
   );
 }
