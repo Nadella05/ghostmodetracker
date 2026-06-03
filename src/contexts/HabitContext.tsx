@@ -97,6 +97,7 @@ export function HabitProvider({ children }: { children: ReactNode }) {
       resetToday: waterTrackerData.resetToday,
       getProgress: waterTrackerData.getProgress,
       getWeeklyStats: waterTrackerData.getWeeklyStats,
+      getIntakeForDate: waterTrackerData.getIntakeForDate,
     },
     xpSystem: {
       awardCompletionXP: xpSystemData.awardCompletionXP,
