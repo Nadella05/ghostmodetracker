@@ -155,8 +155,10 @@ export function WaterTracker({
         </Button>
       </div>
 
-      {/* Analytics */}
-      <HydrationAnalytics />
+      {/* Analytics — inline on mobile/tablet; moved to right panel on xl+ */}
+      <div className="xl:hidden">
+        <HydrationAnalytics />
+      </div>
 
       {/* Settings */}
       <div className="space-y-3">
