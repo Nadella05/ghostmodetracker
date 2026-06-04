@@ -50,6 +50,10 @@ export function WaterTracker({
   const quickAmounts = [250, 500, 750];
   const goalOptions = [1500, 2000, 2500, 3000, 3500, 4000];
   const remaining = Math.max(0, dailyGoal - todayIntake);
+  // Raw (unclamped) percentage so we can show overflow visuals
+  const rawPercent = dailyGoal > 0 ? Math.round((todayIntake / dailyGoal) * 100) : 0;
+  const isOverflow = rawPercent > 100;
+  const overflowMl = Math.max(0, todayIntake - dailyGoal);
 
   const handleAdd = (amount: number) => {
     addWater(amount);
