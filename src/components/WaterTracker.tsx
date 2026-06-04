@@ -50,6 +50,10 @@ export function WaterTracker({
   const quickAmounts = [250, 500, 750];
   const goalOptions = [1500, 2000, 2500, 3000, 3500, 4000];
   const remaining = Math.max(0, dailyGoal - todayIntake);
+  // Raw (unclamped) percentage so we can show overflow visuals
+  const rawPercent = dailyGoal > 0 ? Math.round((todayIntake / dailyGoal) * 100) : 0;
+  const isOverflow = rawPercent > 100;
+  const overflowMl = Math.max(0, todayIntake - dailyGoal);
 
   const handleAdd = (amount: number) => {
     addWater(amount);
@@ -60,10 +64,10 @@ export function WaterTracker({
     <div className="space-y-6">
       {/* Immersive liquid container */}
       <LiquidContainer
-        percentage={progress.percentage}
+        percentage={rawPercent}
         pourTrigger={pourTrigger}
         ghost={isGhostMode}
-        className="h-[360px] sm:h-[420px]"
+        className="h-[360px] sm:h-[440px]"
       >
         <div className="absolute inset-0 flex flex-col items-center justify-between p-5">
           {/* Top dashboard */}
@@ -71,24 +75,29 @@ export function WaterTracker({
             'w-full rounded-2xl border px-4 py-3 backdrop-blur-md',
             isGhostMode
               ? 'bg-card/80 border-border'
-              : 'bg-white/70 dark:bg-card/70 border-white/40 shadow-lg shadow-sky-500/10'
+              : 'bg-white/70 dark:bg-card/70 border-white/40 shadow-lg shadow-sky-500/10',
           )}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Droplets className={cn('h-5 w-5', isGhostMode ? 'text-muted-foreground' : 'text-sky-500')} />
                 <span className="text-sm font-semibold">Hydration</span>
+                {isOverflow && !isGhostMode && (
+                  <span className="ml-1 inline-flex items-center rounded-full bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5">
+                    Overflow
+                  </span>
+                )}
               </div>
               <span className={cn(
                 'text-sm font-bold tabular-nums',
-                progress.isGoalMet && !isGhostMode && 'text-sky-500'
+                (progress.isGoalMet || isOverflow) && !isGhostMode && 'text-sky-500',
               )}>
-                {progress.percentage}%
+                {rawPercent}%
               </span>
             </div>
             <div className="grid grid-cols-3 gap-2 mt-2 text-center">
               <Stat label="Current" value={`${todayIntake}`} unit="ml" />
-              <Stat label="Goal" value={`${dailyGoal}`} unit="ml" />
-              <Stat label="Left" value={`${remaining}`} unit="ml" />
+              <Stat label="Goal"    value={`${dailyGoal}`}   unit="ml" />
+              <Stat label={isOverflow ? 'Over' : 'Left'} value={`${isOverflow ? overflowMl : remaining}`} unit="ml" />
             </div>
           </div>
 
@@ -99,16 +108,16 @@ export function WaterTracker({
           )}>
             <div className={cn(
               'text-5xl sm:text-6xl font-extrabold tabular-nums leading-none',
-              !isGhostMode && progress.percentage > 30 ? 'text-white' : ''
+              !isGhostMode && rawPercent > 30 ? 'text-white' : '',
             )}>
               {todayIntake}
               <span className="text-lg font-medium opacity-80 ml-1">ml</span>
             </div>
             <p className={cn(
               'text-xs uppercase tracking-widest mt-1',
-              !isGhostMode && progress.percentage > 30 ? 'text-white/80' : 'text-muted-foreground'
+              !isGhostMode && rawPercent > 30 ? 'text-white/80' : 'text-muted-foreground',
             )}>
-              {progress.isGoalMet ? 'Goal achieved' : `${remaining} ml to goal`}
+              {isOverflow ? `Overflow +${overflowMl} ml` : (progress.isGoalMet ? 'Goal achieved' : `${remaining} ml to goal`)}
             </p>
           </div>
 
@@ -146,8 +155,10 @@ export function WaterTracker({
         </Button>
       </div>
 
-      {/* Analytics */}
-      <HydrationAnalytics />
+      {/* Analytics — inline on mobile/tablet; moved to right panel on xl+ */}
+      <div className="xl:hidden">
+        <HydrationAnalytics />
+      </div>
 
       {/* Settings */}
       <div className="space-y-3">

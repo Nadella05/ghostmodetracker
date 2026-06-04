@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Calendar as CalendarIcon, BarChart3, Settings, CheckCircle, Ghost, Droplets, Flame } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, BarChart3, Settings, CheckCircle, Ghost, Droplets, Flame, LayoutDashboard, Trophy } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useHabitContext } from '@/contexts/HabitContext';
@@ -12,36 +12,38 @@ import { Onboarding } from '@/components/Onboarding';
 import { WaterTracker } from '@/components/WaterTracker';
 import { CalorieChat } from '@/components/CalorieChat';
 import { DailySummary } from '@/components/DailySummary';
+import { DashboardOverview } from '@/components/DashboardOverview';
+import { AchievementsView } from '@/components/AchievementsView';
 import { XPDisplay } from '@/components/XPDisplay';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { DesktopRightPanel } from '@/components/DesktopRightPanel';
 import { Button } from '@/components/ui/button';
 import { Habit, ThemeColor } from '@/types/habit';
 
-type Tab = 'today' | 'water' | 'calories' | 'calendar' | 'analytics' | 'settings';
+type Tab = 'dashboard' | 'today' | 'water' | 'calories' | 'calendar' | 'analytics' | 'achievements' | 'settings';
 
 export function Dashboard() {
-  const { 
-    getTodaysHabits, 
-    habits, 
-    isGhostMode, 
-    profile, 
+  const {
+    getTodaysHabits,
+    habits,
+    isGhostMode,
+    profile,
     needsOnboarding,
     completeOnboarding,
     waterTracker,
-    xpSystem
   } = useHabitContext();
-  const [activeTab, setActiveTab] = useState<Tab>('today');
+
+  const initialTab: Tab = typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'dashboard' : 'today';
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [formOpen, setFormOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
 
-  // Show onboarding if not completed
   if (needsOnboarding) {
     return (
-      <Onboarding 
+      <Onboarding
         onComplete={(name: string, themeColor: ThemeColor) => {
           completeOnboarding(name, themeColor);
-        }} 
+        }}
       />
     );
   }
@@ -72,49 +74,53 @@ export function Dashboard() {
     return 'Good evening';
   };
 
-  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: 'today', label: 'Today', icon: <CheckCircle className="h-5 w-5" /> },
-    { id: 'water', label: 'Water', icon: <Droplets className="h-5 w-5" /> },
-    { id: 'calories', label: 'Calories', icon: <Flame className="h-5 w-5" /> },
-    { id: 'calendar', label: 'Calendar', icon: <CalendarIcon className="h-5 w-5" /> },
-    { id: 'analytics', label: 'Stats', icon: <BarChart3 className="h-5 w-5" /> },
-    { id: 'settings', label: 'Settings', icon: <Settings className="h-5 w-5" /> },
+  // Bottom nav (mobile) — keep to 6 items
+  const mobileTabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: 'today',     label: 'Today',    icon: <CheckCircle className="h-5 w-5" /> },
+    { id: 'water',     label: 'Water',    icon: <Droplets className="h-5 w-5" /> },
+    { id: 'calories',  label: 'Calories', icon: <Flame className="h-5 w-5" /> },
+    { id: 'calendar',  label: 'Calendar', icon: <CalendarIcon className="h-5 w-5" /> },
+    { id: 'analytics', label: 'Stats',    icon: <BarChart3 className="h-5 w-5" /> },
+    { id: 'settings',  label: 'More',     icon: <Settings className="h-5 w-5" /> },
   ];
+
+  const title = ({
+    dashboard:    'Dashboard',
+    today:        '',
+    water:        'Hydration',
+    calories:     'Calories',
+    calendar:     'Calendar',
+    analytics:    'Analytics',
+    achievements: 'Achievements',
+    settings:     'Settings',
+  } as Record<Tab, string>)[activeTab];
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Desktop sidebar */}
       <DesktopSidebar
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={(t) => setActiveTab(t)}
         onAddHabit={() => setFormOpen(true)}
       />
 
-      {/* Main column */}
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Header */}
         <header className={cn(
-          "sticky top-0 z-10 backdrop-blur-lg border-b",
+          'sticky top-0 z-10 backdrop-blur-lg border-b',
           isGhostMode
-            ? "bg-background/80"
-            : "bg-gradient-to-r from-background/95 via-primary/5 to-background/95"
+            ? 'bg-background/80'
+            : 'bg-gradient-to-r from-background/95 via-primary/5 to-background/95',
         )}>
-          <div className="container max-w-lg lg:max-w-3xl mx-auto px-4 py-4">
+          <div className="container max-w-lg lg:max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   {isGhostMode && <Ghost className="h-4 w-4 shrink-0" />}
                   <h1 className="text-xl lg:text-2xl font-bold truncate">
-                    {activeTab === 'today' && (
+                    {activeTab === 'today' ? (
                       <>
                         {getGreeting()}, <span className="text-primary">{profile.name}</span>
                       </>
-                    )}
-                    {activeTab === 'water' && 'Hydration'}
-                    {activeTab === 'calories' && 'Calories'}
-                    {activeTab === 'calendar' && 'Calendar'}
-                    {activeTab === 'analytics' && 'Analytics'}
-                    {activeTab === 'settings' && 'Settings'}
+                    ) : title}
                   </h1>
                 </div>
                 {activeTab === 'today' && (
@@ -124,9 +130,7 @@ export function Dashboard() {
                 )}
               </div>
 
-              {!isGhostMode && activeTab === 'today' && (
-                <XPDisplay compact />
-              )}
+              {!isGhostMode && activeTab === 'today' && <XPDisplay compact />}
 
               {activeTab === 'today' && todaysHabits.length > 0 && isGhostMode && (
                 <div className="text-right font-mono">
@@ -140,8 +144,9 @@ export function Dashboard() {
           </div>
         </header>
 
-        {/* Content */}
-        <main className="flex-1 container max-w-lg lg:max-w-3xl mx-auto px-4 py-6 w-full">
+        <main className="flex-1 container max-w-lg lg:max-w-4xl mx-auto px-4 py-6 w-full">
+          {activeTab === 'dashboard' && <DashboardOverview />}
+
           {activeTab === 'today' && (
             <div className="space-y-3">
               {todaysHabits.length > 0 && (
@@ -155,9 +160,7 @@ export function Dashboard() {
                     <Plus className="h-8 w-8 text-primary" />
                   </div>
                   <h2 className="text-lg font-medium mb-2">No habits for today</h2>
-                  <p className="text-muted-foreground mb-6">
-                    Start building better habits
-                  </p>
+                  <p className="text-muted-foreground mb-6">Start building better habits</p>
                   <Button onClick={() => setFormOpen(true)}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Your First Habit
@@ -168,15 +171,10 @@ export function Dashboard() {
                   {todaysHabits.map((habit, index) => (
                     <div
                       key={habit.id}
-                      className={cn(
-                        !isGhostMode && "animate-fade-in"
-                      )}
+                      className={cn(!isGhostMode && 'animate-fade-in')}
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <HabitCard
-                        habit={habit}
-                        onEdit={handleEditHabit}
-                      />
+                      <HabitCard habit={habit} onEdit={handleEditHabit} />
                     </div>
                   ))}
                 </div>
@@ -196,19 +194,19 @@ export function Dashboard() {
             />
           )}
 
-          {activeTab === 'calories' && <CalorieChat />}
-          {activeTab === 'calendar' && <CalendarView />}
-          {activeTab === 'analytics' && <AnalyticsView />}
-          {activeTab === 'settings' && <SettingsView />}
+          {activeTab === 'calories'     && <CalorieChat />}
+          {activeTab === 'calendar'     && <CalendarView />}
+          {activeTab === 'analytics'    && <AnalyticsView />}
+          {activeTab === 'achievements' && <AchievementsView />}
+          {activeTab === 'settings'     && <SettingsView />}
         </main>
 
-        {/* FAB (mobile only) */}
         {activeTab === 'today' && habits.filter(h => !h.archived).length > 0 && (
           <Button
             size="lg"
             className={cn(
-              "lg:hidden fixed bottom-24 right-4 h-14 w-14 rounded-full shadow-lg",
-              !isGhostMode && "shadow-primary/25"
+              'lg:hidden fixed bottom-24 right-4 h-14 w-14 rounded-full shadow-lg',
+              !isGhostMode && 'shadow-primary/25',
             )}
             onClick={() => setFormOpen(true)}
           >
@@ -216,19 +214,18 @@ export function Dashboard() {
           </Button>
         )}
 
-        {/* Bottom Navigation (mobile only) */}
         <nav className="lg:hidden sticky bottom-0 bg-background/80 backdrop-blur-lg border-t safe-area-inset-bottom">
           <div className="container max-w-lg mx-auto">
             <div className="flex items-center justify-around py-2">
-              {tabs.map((tab) => (
+              {mobileTabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    "flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors",
+                    'flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors',
                     activeTab === tab.id
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? 'text-primary'
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
                   {tab.icon}
@@ -240,10 +237,8 @@ export function Dashboard() {
         </nav>
       </div>
 
-      {/* Desktop right analytics panel */}
-      <DesktopRightPanel />
+      <DesktopRightPanel activeTab={activeTab} />
 
-      {/* Habit Form Dialog */}
       <HabitForm
         open={formOpen}
         onOpenChange={handleFormClose}

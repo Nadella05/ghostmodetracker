@@ -49,6 +49,33 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Heatmap intensity palettes (5 steps, light theme) */
+    --heat-habits-0: 240 5% 94%;
+    --heat-habits-1: 262 80% 88%;
+    --heat-habits-2: 262 80% 75%;
+    --heat-habits-3: 262 76% 60%;
+    --heat-habits-4: 262 80% 45%;
+
+    --heat-calories-0: 240 5% 94%;
+    --heat-calories-1: 30 95% 88%;
+    --heat-calories-2: 30 95% 72%;
+    --heat-calories-3: 22 90% 58%;
+    --heat-calories-4: 16 85% 48%;
+
+    --heat-hydration-0: 240 5% 94%;
+    --heat-hydration-1: 200 90% 88%;
+    --heat-hydration-2: 200 85% 70%;
+    --heat-hydration-3: 205 80% 55%;
+    --heat-hydration-4: 212 80% 42%;
+
+    --heat-consistency-0: 240 5% 94%;
+    --heat-consistency-1: 142 60% 86%;
+    --heat-consistency-2: 142 55% 65%;
+    --heat-consistency-3: 142 60% 45%;
+    --heat-consistency-4: 142 70% 32%;
+
+    --shadow-elevated: 0 10px 30px -10px hsl(240 10% 10% / 0.18);
   }
 
   .dark,
@@ -87,6 +114,52 @@
 
     --streak: 0 0% 50%;
     --streak-glow: none;
+
+    /* Heatmap palettes — dark theme (mono in ghost) */
+    --heat-habits-0: 0 0% 10%;
+    --heat-habits-1: 262 30% 22%;
+    --heat-habits-2: 262 50% 35%;
+    --heat-habits-3: 262 65% 50%;
+    --heat-habits-4: 262 80% 65%;
+
+    --heat-calories-0: 0 0% 10%;
+    --heat-calories-1: 30 40% 22%;
+    --heat-calories-2: 28 60% 38%;
+    --heat-calories-3: 22 75% 50%;
+    --heat-calories-4: 18 85% 60%;
+
+    --heat-hydration-0: 0 0% 10%;
+    --heat-hydration-1: 200 40% 22%;
+    --heat-hydration-2: 200 60% 35%;
+    --heat-hydration-3: 205 75% 50%;
+    --heat-hydration-4: 212 85% 62%;
+
+    --heat-consistency-0: 0 0% 10%;
+    --heat-consistency-1: 142 30% 22%;
+    --heat-consistency-2: 142 45% 35%;
+    --heat-consistency-3: 142 60% 48%;
+    --heat-consistency-4: 142 75% 60%;
+
+    --shadow-elevated: 0 10px 30px -10px hsl(0 0% 0% / 0.6);
+  }
+
+  .ghost-mode {
+    --heat-habits-1: 0 0% 18%;
+    --heat-habits-2: 0 0% 28%;
+    --heat-habits-3: 0 0% 45%;
+    --heat-habits-4: 0 0% 70%;
+    --heat-calories-1: 0 0% 18%;
+    --heat-calories-2: 0 0% 28%;
+    --heat-calories-3: 0 0% 45%;
+    --heat-calories-4: 0 0% 70%;
+    --heat-hydration-1: 0 0% 18%;
+    --heat-hydration-2: 0 0% 28%;
+    --heat-hydration-3: 0 0% 45%;
+    --heat-hydration-4: 0 0% 70%;
+    --heat-consistency-1: 0 0% 18%;
+    --heat-consistency-2: 0 0% 28%;
+    --heat-consistency-3: 0 0% 45%;
+    --heat-consistency-4: 0 0% 70%;
   }
 }
 
@@ -222,19 +295,67 @@
     pointer-events: none;
   }
 
+  /* ─── Overflow: water spilling over the top ─────────────────────── */
+  @keyframes water-spill-drop {
+    0%   { transform: translateY(0) scale(1); opacity: 0; }
+    20%  { opacity: 1; }
+    100% { transform: translateY(120px) scale(0.7); opacity: 0; }
+  }
+  .water-spill-drop {
+    position: absolute;
+    top: 0;
+    width: 8px;
+    height: 12px;
+    border-radius: 9999px;
+    background: linear-gradient(to bottom, hsl(200 90% 70%), hsl(212 85% 50%));
+    box-shadow: 0 0 8px hsl(200 90% 60% / 0.6);
+    animation: water-spill-drop 1.6s ease-in infinite;
+    pointer-events: none;
+  }
+
+  @keyframes water-splash {
+    0%   { transform: translate(-50%, 0) scale(0.4); opacity: 0.9; }
+    100% { transform: translate(-50%, -8px) scale(1.8); opacity: 0; }
+  }
+  .water-splash {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 60px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid hsl(200 90% 70% / 0.7);
+    animation: water-splash 1.4s ease-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.5); }
+    50%      { box-shadow: 0 0 0 8px hsl(var(--primary) / 0); }
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 2.4s ease-out infinite;
+  }
+
   /* Disable expensive water animations in ghost mode and on reduced-motion */
   .ghost-mode .animate-water-wave,
   .ghost-mode .animate-water-wave-slow,
   .ghost-mode .water-bubble,
   .ghost-mode .water-pour,
-  .ghost-mode .water-ripple {
+  .ghost-mode .water-ripple,
+  .ghost-mode .water-spill-drop,
+  .ghost-mode .water-splash,
+  .ghost-mode .animate-pulse-glow {
     animation: none !important;
     display: none !important;
   }
   @media (prefers-reduced-motion: reduce) {
     .animate-water-wave,
     .animate-water-wave-slow,
-    .water-bubble {
+    .water-bubble,
+    .water-spill-drop,
+    .water-splash,
+    .animate-pulse-glow {
       animation: none !important;
     }
   }
@@ -243,5 +364,17 @@
     background: hsl(var(--card) / 0.6);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+  }
+
+  .glass-panel {
+    background: hsl(var(--card) / 0.7);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid hsl(var(--border) / 0.7);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
   }
 }
