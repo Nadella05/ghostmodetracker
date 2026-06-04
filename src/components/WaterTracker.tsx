@@ -108,16 +108,16 @@ export function WaterTracker({
           )}>
             <div className={cn(
               'text-5xl sm:text-6xl font-extrabold tabular-nums leading-none',
-              !isGhostMode && progress.percentage > 30 ? 'text-white' : ''
+              !isGhostMode && rawPercent > 30 ? 'text-white' : '',
             )}>
               {todayIntake}
               <span className="text-lg font-medium opacity-80 ml-1">ml</span>
             </div>
             <p className={cn(
               'text-xs uppercase tracking-widest mt-1',
-              !isGhostMode && progress.percentage > 30 ? 'text-white/80' : 'text-muted-foreground'
+              !isGhostMode && rawPercent > 30 ? 'text-white/80' : 'text-muted-foreground',
             )}>
-              {progress.isGoalMet ? 'Goal achieved' : `${remaining} ml to goal`}
+              {isOverflow ? `Overflow +${overflowMl} ml` : (progress.isGoalMet ? 'Goal achieved' : `${remaining} ml to goal`)}
             </p>
           </div>
 
