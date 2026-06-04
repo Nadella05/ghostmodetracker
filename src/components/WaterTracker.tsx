@@ -64,10 +64,10 @@ export function WaterTracker({
     <div className="space-y-6">
       {/* Immersive liquid container */}
       <LiquidContainer
-        percentage={progress.percentage}
+        percentage={rawPercent}
         pourTrigger={pourTrigger}
         ghost={isGhostMode}
-        className="h-[360px] sm:h-[420px]"
+        className="h-[360px] sm:h-[440px]"
       >
         <div className="absolute inset-0 flex flex-col items-center justify-between p-5">
           {/* Top dashboard */}
@@ -75,24 +75,29 @@ export function WaterTracker({
             'w-full rounded-2xl border px-4 py-3 backdrop-blur-md',
             isGhostMode
               ? 'bg-card/80 border-border'
-              : 'bg-white/70 dark:bg-card/70 border-white/40 shadow-lg shadow-sky-500/10'
+              : 'bg-white/70 dark:bg-card/70 border-white/40 shadow-lg shadow-sky-500/10',
           )}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Droplets className={cn('h-5 w-5', isGhostMode ? 'text-muted-foreground' : 'text-sky-500')} />
                 <span className="text-sm font-semibold">Hydration</span>
+                {isOverflow && !isGhostMode && (
+                  <span className="ml-1 inline-flex items-center rounded-full bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5">
+                    Overflow
+                  </span>
+                )}
               </div>
               <span className={cn(
                 'text-sm font-bold tabular-nums',
-                progress.isGoalMet && !isGhostMode && 'text-sky-500'
+                (progress.isGoalMet || isOverflow) && !isGhostMode && 'text-sky-500',
               )}>
-                {progress.percentage}%
+                {rawPercent}%
               </span>
             </div>
             <div className="grid grid-cols-3 gap-2 mt-2 text-center">
               <Stat label="Current" value={`${todayIntake}`} unit="ml" />
-              <Stat label="Goal" value={`${dailyGoal}`} unit="ml" />
-              <Stat label="Left" value={`${remaining}`} unit="ml" />
+              <Stat label="Goal"    value={`${dailyGoal}`}   unit="ml" />
+              <Stat label={isOverflow ? 'Over' : 'Left'} value={`${isOverflow ? overflowMl : remaining}`} unit="ml" />
             </div>
           </div>
 
