@@ -1,121 +1,113 @@
-## Scope
+# Premium Desktop Layout + Visual Analytics Redesign
 
-Major upgrade to Calories and Hydration modules. Two big systems landed together with shared design language.
+Frontend / presentation only. No business logic, no data model, no hook signature changes. All colors via semantic tokens in `index.css` + `tailwind.config.ts`.
 
----
+## 1. Desktop shell (Dashboard.tsx)
 
-## A. Nutrition Intelligence
+Three-column layout on `xl+`:
 
-### A1. Expand food database
-Update `src/data/foodDatabase.ts` so each entry carries macros per unit:
-`{ calories, protein, carbs, fat, fiber, sugar, sodium }`. Keep existing lookup API; add a `getMacros(name, qty, grams?)` helper.
+```text
+[ Sidebar 240px ][ Main (fluid) ][ Insights Panel 360px ]
+```
 
-### A2. Parser → macros
-Update `src/lib/calorieParser.ts` so `ParsedFoodItem` includes all 7 macros (calories + 6 nutrients). Weight-based items scale per 100g; unit-based items scale by qty.
+- Left sidebar (`DesktopSidebar.tsx`) — add logo block, user chip (name + level/XP or Ghost glyph), nav items: Dashboard, Habits, Calories, Hydration, Analytics, Achievements, Settings. Keep existing collapse behavior.
+- New `dashboard` tab becomes the default landing tab on desktop (mobile keeps current `today` default).
+- Center column widens to `max-w-4xl` on desktop; mobile layout untouched.
+- Right panel (`DesktopRightPanel.tsx`) becomes **tab-aware** and switches contents based on `activeTab` (passed via prop).
 
-### A3. Calorie store → nutrition store
-Update `src/hooks/useCalorieTracker.ts`:
-- `CalorieEntry` carries `macros: { calories, protein, carbs, fat, fiber, sugar, sodium }`
-- New selectors: `getDailyMacros(date?)`, `getMacroGoals()`
-- Persist new goals: `proteinGoal`, `carbGoal`, `fatGoal`, `fiberGoal` (auto-derived but overridable)
+## 2. New Dashboard tab
 
-### A4. User profile (weight + goal)
-Extend `src/hooks/useUserProfile.ts` and `src/types/habit.ts`:
-- `weightKg`, `heightCm`, `age`, `gender`, `activityLevel`, `weightGoal` ('lose'|'maintain'|'gain')
-- Onboarding (`src/components/Onboarding.tsx`) gains a 3rd step collecting weight/age/gender/activity/goal (skippable with sensible defaults).
-- Settings exposes the same fields for later edits.
+New component `DashboardOverview.tsx` rendered when `activeTab === 'dashboard'`:
 
-### A5. Smart targets
-New `src/lib/nutritionTargets.ts`:
-- Mifflin-St Jeor BMR → TDEE via activity multiplier
-- Calorie target: TDEE − 500 / TDEE / TDEE + 300
-- Protein: weight × {1.8 / 1.4 / 2.0}
-- Carbs/fat/fiber derived from calorie target (40/30/30 default, fiber 14g per 1000 kcal)
+- **Today's Summary** — 5 stat tiles (Habits x/y, Calories kcal, Protein g, Water ml, Consistency %) with ring/arc visuals and trend arrows.
+- **Recent Activity** — merged feed from latest habit completions, calorie entries, water logs (read-only, derived from existing hooks).
+- **Weekly Snapshot** — three mini sparkline cards (habits, calories, hydration) using existing `recharts`.
+- **Quick Insights** — text cards generated from existing `nutritionInsights` + streak data + hydration trend.
 
-### A6. Nutrition dashboard
-Rewrite hero in `src/components/CalorieChat.tsx`:
-- Top hero card keeps calorie ring
-- New macro grid: Calories, Protein, Carbs, Fat, Fiber — each as a glass card with mini progress ring and current/target
-- Insights strip below (auto-generated from `nutritionInsights.ts`): low protein, high sugar, low fiber, deficit/surplus
+## 3. Tab-aware right panel
 
-### A7. Weight projection
-New `src/components/WeightProjection.tsx`:
-- Reads today's net calorie delta vs TDEE
-- Projected today = current − (deficit / 7700) ; 30-day = current − (avg deficit × 30 / 7700)
-- Shown in Calories tab + desktop right panel
+`DesktopRightPanel` switches contents:
 
-### A8. Ghost mode nutrition
-In Ghost Mode the macro grid renders as a plain monochrome table (numbers only, no rings, no insights, no projection card).
+- **dashboard** — Monthly heatmap (consistency) + top streaks.
+- **today / habits** — DailySummary + streak leaderboard + consistency ring.
+- **calories** — `MacroDashboard` (rings), `WeightProjection`, nutrition insights, weekly nutrition chart (recharts line: protein/calories/carbs).
+- **water** — Weekly avg, monthly avg, best day, consistency tiles + 7-day bar chart + monthly hydration heatmap + hydration achievement badge cards.
+- **analytics** — compact link to full analytics view.
+- **settings / achievements** — hide panel.
 
----
+Move the analytics blocks currently inline in `CalorieChat.tsx` and `WaterTracker.tsx` into the right panel on `xl+`, keep them inline on smaller screens (conditional render via Tailwind `xl:hidden` / `hidden xl:block`).
 
-## B. Immersive Hydration
+## 4. Immersive water + overflow
 
-### B1. Liquid container shell
-Rewrite `src/components/WaterTracker.tsx` so the tab body becomes the container:
-- Absolute-positioned SVG/CSS layer fills from bottom by `percentage`
-- Two stacked SVG wave paths animated with `transform: translateX` (CSS keyframes, GPU only)
-- Floating bubbles: 6 absolutely-positioned divs with staggered `animation: rise` keyframes
-- All wrapped in a `<div className="relative overflow-hidden">` so animation never escapes the tab
+Extend `LiquidContainer.tsx`:
 
-### B2. Pour animation
-On add-water:
-- Spawn a falling droplet column from top (CSS keyframe `pour`, 1.2s)
-- Trigger a one-shot ripple ring at the surface (scale + fade)
-- Animate `percentage` change with `transition: height 800ms cubic-bezier(.4,0,.2,1)`
+- Accept `percentage` > 100 without clamping for visual state (logic unchanged).
+- When `percentage > 100`: render an `.water-overflow` layer at the top edge with spilling droplets + splash ring + subtle wave amplitude boost. New CSS keyframes: `water-spill`, `water-splash`, `droplet-fall-overflow`.
+- Surface waves get gentle amplitude scaling near 100%.
+- Ghost mode unaffected (stays monochrome bar).
 
-### B3. Hydration dashboard overlay
-Glass card pinned above the water:
-- Current / Goal / Remaining / % Hydration
-- Quick-add chips: +250 / +500 / +750 / custom
-- Reset button
+## 5. GitHub-style heatmap
 
-### B4. Hydration analytics
-New `src/components/HydrationAnalytics.tsx`:
-- 7-day bar chart (recharts already in project)
-- Weekly avg, monthly avg, best day, consistency score (% of days hitting goal in last 30)
-- Mounted at bottom of Water tab
+Rewrite `MonthlyHeatmap.tsx` visuals (data source unchanged):
 
-### B5. Hydration achievements
-Extend `src/data/achievements.ts` with: First 1L Day, 7 Days Hydrated, Perfect Hydration Week, 30-Day Hydration Master. Wire into existing achievement check loop.
+- 5 intensity levels (0–4) mapped to semantic tokens.
+- New per-context palettes via CSS vars: `--heat-habits`, `--heat-calories`, `--heat-hydration`, `--heat-consistency` (purple / orange / blue / green scales), each with 5 steps in HSL.
+- Add `variant` prop: `habits | calories | hydration | consistency`.
+- Hover tooltip (Radix Tooltip) showing date + per-context metric.
+- Reuse in dashboard + hydration right panel.
 
-### B6. Ghost mode hydration
-Ghost Mode disables waves, bubbles, ripple, pour droplet. Container becomes a static monochrome progress bar with numeric readout only (matches existing Ghost Mode rules).
+## 6. Achievements gallery
 
-### B7. Performance guardrails
-- All animations CSS-only (no JS rAF loops)
-- `will-change: transform` on wave/bubble elements
-- `prefers-reduced-motion` short-circuits waves & bubbles
-- Bubble count capped at 6; pour droplet pool reuses one DOM node
+`AchievementsView.tsx`: convert list to responsive grid (2/3/4 cols). Each card: icon tile, title, description, unlock date, locked state with lock icon + grayscale. Rare tier gets `animate-pulse-glow` ring (new keyframe).
 
----
+## 7. Stats polish
+
+New small components in `src/components/ui/stat/`:
+- `AnimatedCounter.tsx` (requestAnimationFrame tween, respects `prefers-reduced-motion`).
+- `TrendArrow.tsx` (up/down/flat with % and color).
+- `RingStat.tsx` (SVG ring + center value).
+
+Use across DashboardOverview, MacroDashboard, right-panel tiles.
+
+## 8. Global visual quality
+
+`index.css`:
+- New gradient tokens: `--gradient-glass`, `--gradient-hero`, `--gradient-heat-*`.
+- Glass utility `.glass-panel` (backdrop-blur + translucent border + soft shadow).
+- New shadow token `--shadow-elevated`.
+- New keyframes: `water-spill`, `water-splash`, `pulse-glow`, `count-up`.
+- Reserve `prefers-reduced-motion` guards.
+
+`tailwind.config.ts`:
+- Map new keyframes/animations.
+- Extend `boxShadow` with `elevated`, `glass`.
 
 ## Files
 
 **New**
-- `src/lib/nutritionTargets.ts`
-- `src/lib/nutritionInsights.ts`
-- `src/components/MacroDashboard.tsx`
-- `src/components/WeightProjection.tsx`
-- `src/components/HydrationAnalytics.tsx`
-- `src/components/LiquidContainer.tsx` (waves + bubbles + pour SVG layer)
+- `src/components/DashboardOverview.tsx`
+- `src/components/RightPanelHabits.tsx`
+- `src/components/RightPanelCalories.tsx`
+- `src/components/RightPanelHydration.tsx`
+- `src/components/RecentActivity.tsx`
+- `src/components/WeeklySnapshot.tsx`
+- `src/components/QuickInsights.tsx`
+- `src/components/HydrationHeatmap.tsx`
+- `src/components/ui/stat/AnimatedCounter.tsx`
+- `src/components/ui/stat/TrendArrow.tsx`
+- `src/components/ui/stat/RingStat.tsx`
 
-**Edited**
-- `src/data/foodDatabase.ts` (add macros)
-- `src/lib/calorieParser.ts` (carry macros)
-- `src/hooks/useCalorieTracker.ts` (macros + goals)
-- `src/hooks/useUserProfile.ts` + `src/types/habit.ts` (weight/age/gender/activity/goal)
-- `src/components/Onboarding.tsx` (extra step)
-- `src/components/SettingsView.tsx` (edit profile fields)
-- `src/components/CalorieChat.tsx` (macro dashboard, projection, insights, ghost variant)
-- `src/components/WaterTracker.tsx` (liquid container, dashboard overlay, analytics, ghost variant)
-- `src/components/DesktopRightPanel.tsx` (show macro mini-grid + projection)
-- `src/data/achievements.ts` (hydration achievements)
-- `src/index.css` (wave/bubble/pour/ripple keyframes + glass utilities)
-
----
+**Edited (presentation only)**
+- `src/components/Dashboard.tsx` — add dashboard tab, widen center, pass activeTab to right panel.
+- `src/components/DesktopSidebar.tsx` — logo, user chip, Dashboard + Achievements entries.
+- `src/components/DesktopRightPanel.tsx` — tab-aware switch.
+- `src/components/MonthlyHeatmap.tsx` — variants, tooltips, intensity scale.
+- `src/components/AchievementsView.tsx` — gallery grid.
+- `src/components/LiquidContainer.tsx` — overflow visuals.
+- `src/components/WaterTracker.tsx` — move analytics to xl right panel, keep on mobile.
+- `src/components/CalorieChat.tsx` — same xl/mobile split for macro/projection blocks.
+- `src/index.css` + `tailwind.config.ts` — tokens, gradients, keyframes.
 
 ## Out of scope
-- No backend / Lovable Cloud (frontend-only, matches prior security choice)
-- No habit-tab redesign (already done last pass)
-- No new charts library
+
+No backend, no hook signature changes, no new data persisted, no new libraries (uses existing recharts, radix, lucide).
