@@ -297,6 +297,69 @@ export function SettingsView() {
         </div>
       )}
 
+      {/* Appearance: Dark mode + Theme presets (hidden in Ghost) */}
+      {!isGhostMode && (
+        <div className="space-y-4">
+          <h3 className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
+            Appearance
+          </h3>
+
+          <div className="rounded-xl border bg-card p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {settings.darkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                <div>
+                  <p className="font-medium">Dark Mode</p>
+                  <p className="text-sm text-muted-foreground">
+                    Use a dark interface. Remembered across sessions.
+                  </p>
+                </div>
+              </div>
+              <Switch checked={!!settings.darkMode} onCheckedChange={toggleDarkMode} />
+            </div>
+          </div>
+
+          <div className="rounded-xl border bg-card p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <Sparkles className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium">Theme Preset</p>
+                <p className="text-sm text-muted-foreground">
+                  Drives gradients, glass panels, and heatmap accents.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {([
+                { id: 'cosmic',  label: 'Cosmic',  gradient: 'linear-gradient(135deg,#7c3aed,#06b6d4 60%,#f97316)' },
+                { id: 'ocean',   label: 'Ocean',   gradient: 'linear-gradient(135deg,#2563eb,#06b6d4,#14b8a6)' },
+                { id: 'sunset',  label: 'Sunset',  gradient: 'linear-gradient(135deg,#f97316,#ec4899,#a855f7)' },
+                { id: 'emerald', label: 'Emerald', gradient: 'linear-gradient(135deg,#10b981,#14b8a6,#f59e0b)' },
+                { id: 'neon',    label: 'Neon',    gradient: 'linear-gradient(135deg,#a855f7,#06b6d4,#ec4899)' },
+              ] as const).map((t) => {
+                const active = (settings.themePreset || 'cosmic') === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setThemePreset(t.id)}
+                    className={cn(
+                      'group relative overflow-hidden rounded-xl border p-2 text-left transition-all',
+                      'hover:scale-[1.02] hover:shadow-elevated',
+                      active ? 'ring-2 ring-primary ring-offset-2 ring-offset-background border-primary' : 'border-border',
+                    )}
+                  >
+                    <div className="h-12 w-full rounded-lg" style={{ background: t.gradient }} />
+                    <p className="mt-2 text-xs font-medium text-center">{t.label}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {/* Mode Switch */}
       <div className="rounded-xl border bg-card p-4">
         <div className="flex items-center justify-between">
