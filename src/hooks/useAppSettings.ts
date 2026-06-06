@@ -9,6 +9,8 @@ const defaultSettings: AppSettings = {
   showXP: true,
   showNotifications: false,
   notificationPermission: 'default',
+  darkMode: false,
+  themePreset: 'cosmic',
 };
 
 export function useAppSettings() {
@@ -23,23 +25,35 @@ export function useAppSettings() {
       AppSettingsSchema.partial(),
       defaultSettings
     );
-    setSettings(validated);
+    setSettings({ ...defaultSettings, ...validated });
     setIsLoaded(true);
   }, []);
 
-  // Save settings to localStorage and apply mode class
+  // Save settings to localStorage and apply mode/theme classes
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-      
-      // Apply ghost mode class to document
-      if (settings.mode === 'ghost') {
-        document.documentElement.classList.add('ghost-mode');
-      } else {
-        document.documentElement.classList.remove('ghost-mode');
-      }
+      const root = document.documentElement;
+
+      // Ghost mode toggles its own class (monochrome overrides)
+      root.classList.toggle('ghost-mode', settings.mode === 'ghost');
+
+      // Dark mode independent — ghost mode is always dark
+      const isDark = settings.mode === 'ghost' || !!settings.darkMode;
+      root.classList.toggle('dark', isDark);
+
+      // Theme preset attribute (ignored in ghost mode by CSS)
+      root.setAttribute('data-theme', settings.themePreset || 'cosmic');
     }
   }, [settings, isLoaded]);
+
+  const toggleDarkMode = useCallback(() => {
+    setSettings(prev => ({ ...prev, darkMode: !prev.darkMode }));
+  }, []);
+
+  const setThemePreset = useCallback((preset: AppSettings['themePreset']) => {
+    setSettings(prev => ({ ...prev, themePreset: preset }));
+  }, []);
 
   const updateSettings = useCallback((updates: Partial<AppSettings>) => {
     setSettings(prev => ({ ...prev, ...updates }));
@@ -59,6 +73,8 @@ export function useAppSettings() {
     isLoaded,
     updateSettings,
     toggleMode,
+    toggleDarkMode,
+    setThemePreset,
     isGhostMode,
   };
 }

@@ -73,6 +73,8 @@ export const AppSettingsSchema = z.object({
   showXP: z.boolean(),
   showNotifications: z.boolean(),
   notificationPermission: NotificationPermissionSchema,
+  darkMode: z.boolean().optional(),
+  themePreset: z.enum(['cosmic', 'ocean', 'sunset', 'emerald', 'neon']).optional(),
 });
 
 // Water tracker validation schema

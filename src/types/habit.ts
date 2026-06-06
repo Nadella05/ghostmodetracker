@@ -71,11 +71,15 @@ export interface UserProfile {
   weightGoal?: 'lose' | 'maintain' | 'gain';
 }
 
+export type ThemePreset = 'cosmic' | 'ocean' | 'sunset' | 'emerald' | 'neon';
+
 export interface AppSettings {
   mode: AppMode;
   showXP: boolean;
   showNotifications: boolean;
   notificationPermission: 'default' | 'granted' | 'denied';
+  darkMode?: boolean;
+  themePreset?: ThemePreset;
 }
 
 export interface HabitStats {
