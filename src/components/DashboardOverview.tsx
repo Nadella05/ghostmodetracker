@@ -1,13 +1,11 @@
 import { useMemo } from 'react';
 import { format } from 'date-fns';
-import { CheckCircle, Flame, Beef, Droplets, Target } from 'lucide-react';
+import { CheckCircle, Flame, Beef, Droplets, Target, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHabitContext } from '@/contexts/HabitContext';
 import { useCalorieTracker } from '@/hooks/useCalorieTracker';
 import { RingStat } from '@/components/ui/stat/RingStat';
 import { AnimatedCounter } from '@/components/ui/stat/AnimatedCounter';
-import { TrendArrow } from '@/components/ui/stat/TrendArrow';
-import { RecentActivity } from '@/components/RecentActivity';
 import { WeeklySnapshot } from '@/components/WeeklySnapshot';
 import { QuickInsights } from '@/components/QuickInsights';
 
