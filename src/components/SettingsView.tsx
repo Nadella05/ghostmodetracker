@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { 
   Ghost, 
   Sun, 
+  Moon,
   Download, 
   Upload, 
   Bell, 
@@ -47,6 +48,8 @@ export function SettingsView() {
     settings, 
     updateSettings, 
     toggleMode, 
+    toggleDarkMode,
+    setThemePreset,
     isGhostMode,
     exportData,
     exportDataCSV,
