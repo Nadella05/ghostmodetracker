@@ -4,7 +4,7 @@ import { useAppSettings } from '@/hooks/useAppSettings';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useWaterTracker } from '@/hooks/useWaterTracker';
 import { useXPSystem } from '@/hooks/useXPSystem';
-import { Habit, AppSettings, HabitStats, HabitCategory, HabitFrequency, UserProfile, ThemeColor, UserXPStats, Achievement, HabitFreeze } from '@/types/habit';
+import { Habit, AppSettings, HabitStats, HabitCategory, HabitFrequency, UserProfile, ThemeColor, UserXPStats, Achievement, HabitFreeze, ThemePreset } from '@/types/habit';
 
 interface HabitContextType {
   // Habits
@@ -35,6 +35,8 @@ interface HabitContextType {
   settings: AppSettings;
   updateSettings: (updates: Partial<AppSettings>) => void;
   toggleMode: () => void;
+  toggleDarkMode: () => void;
+  setThemePreset: (preset: ThemePreset) => void;
   isGhostMode: boolean;
 
   // User Profile
