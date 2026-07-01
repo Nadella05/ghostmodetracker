@@ -17,9 +17,9 @@ import { AchievementsView } from '@/components/AchievementsView';
 import { XPDisplay } from '@/components/XPDisplay';
 import { DesktopSidebar } from '@/components/DesktopSidebar';
 import { DesktopRightPanel } from '@/components/DesktopRightPanel';
-import { AmbientOrbs } from '@/components/AmbientOrbs';
 import { Button } from '@/components/ui/button';
 import { Habit, ThemeColor } from '@/types/habit';
+
 
 
 type Tab = 'dashboard' | 'today' | 'water' | 'calories' | 'calendar' | 'analytics' | 'achievements' | 'settings';
@@ -99,12 +99,12 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background flex relative">
-      {!isGhostMode && <AmbientOrbs />}
       <DesktopSidebar
         activeTab={activeTab}
         onTabChange={(t) => setActiveTab(t)}
         onAddHabit={() => setFormOpen(true)}
       />
+
 
 
       <div className="flex-1 min-w-0 flex flex-col relative z-[1]">

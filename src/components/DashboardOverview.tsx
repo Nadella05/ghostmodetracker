@@ -70,7 +70,8 @@ export function DashboardOverview() {
       {/* Hero: Discipline command card */}
       <div className={cn(
         'relative overflow-hidden rounded-3xl border p-6 sm:p-8 animate-spring-in',
-        !isGhostMode ? 'text-white shadow-elevated animate-gradient-drift' : 'bg-card',
+        !isGhostMode ? 'text-white shadow-elevated' : 'bg-card',
+
       )}
         style={!isGhostMode ? { backgroundImage: 'var(--gradient-hero)' } : undefined}
       >
