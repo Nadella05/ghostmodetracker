@@ -99,12 +99,12 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background flex relative">
-      {!isGhostMode && <AmbientOrbs />}
       <DesktopSidebar
         activeTab={activeTab}
         onTabChange={(t) => setActiveTab(t)}
         onAddHabit={() => setFormOpen(true)}
       />
+
 
 
       <div className="flex-1 min-w-0 flex flex-col relative z-[1]">
