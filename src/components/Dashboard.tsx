@@ -225,16 +225,20 @@ export function Dashboard() {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    'flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors',
+                    'group relative flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all duration-200 active:scale-95',
                     activeTab === tab.id
                       ? 'text-primary'
                       : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
-                  {tab.icon}
+                  <span className="icon-pop">{tab.icon}</span>
                   <span className="text-[10px] font-medium">{tab.label}</span>
+                  {activeTab === tab.id && (
+                    <span className="nav-indicator absolute -top-0.5 left-1/2 -translate-x-1/2 h-1 w-6 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.6)]" />
+                  )}
                 </button>
               ))}
+
             </div>
           </div>
         </nav>
