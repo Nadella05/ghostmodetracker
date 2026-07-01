@@ -117,19 +117,18 @@ export function DashboardOverview() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 stagger">
         {tiles.map(t => {
           const Icon = t.icon;
           return (
             <div key={t.key} className={cn(
-              'group relative isolate rounded-2xl border bg-card/80 backdrop-blur p-4 overflow-hidden transition',
-              'hover:shadow-elevated',
-              !isGhostMode && 'hover:-translate-y-0.5',
-              !isGhostMode && 'before:absolute before:inset-0 before:-z-10 before:opacity-[0.08] before:transition-opacity hover:before:opacity-[0.18]',
+              'card-lift group relative isolate rounded-2xl border bg-card/80 backdrop-blur p-4 overflow-hidden',
+              !isGhostMode && 'before:absolute before:inset-0 before:-z-10 before:opacity-[0.08] before:transition-opacity hover:before:opacity-[0.22]',
               !isGhostMode && moduleBgs[t.key],
             )}>
               <div className="flex items-center justify-between mb-3">
-                <Icon className={cn('h-4 w-4', isGhostMode ? 'text-muted-foreground' : 'text-foreground/70')} />
+                <Icon className={cn('h-4 w-4 icon-pop', isGhostMode ? 'text-muted-foreground' : 'text-foreground/70')} />
+
                 <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{t.label}</span>
               </div>
               <div className="flex items-center gap-3">
