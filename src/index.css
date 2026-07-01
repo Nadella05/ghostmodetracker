@@ -479,4 +479,200 @@
   .shadow-elevated {
     box-shadow: var(--shadow-elevated);
   }
+
+  /* ─── Premium motion system ─────────────────────────────────────── */
+  /* Smooth theme transitions when colors change */
+  :root {
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  html {
+    transition: background-color 500ms ease, color 500ms ease;
+  }
+  body, .theme-transition {
+    transition: background-color 500ms ease, color 500ms ease, border-color 500ms ease;
+  }
+
+  /* Page transitions */
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.995); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .page-transition {
+    animation: page-in 380ms var(--ease-out-soft) both;
+  }
+
+  /* Spring-in for hero elements */
+  @keyframes spring-in {
+    0%   { opacity: 0; transform: translateY(14px) scale(0.96); }
+    60%  { opacity: 1; transform: translateY(-2px) scale(1.01); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .animate-spring-in {
+    animation: spring-in 520ms var(--ease-out-soft) both;
+  }
+
+  /* Stagger children — up to 12 items */
+  .stagger > * {
+    opacity: 0;
+    animation: page-in 460ms var(--ease-out-soft) both;
+  }
+  .stagger > *:nth-child(1)  { animation-delay:  40ms; }
+  .stagger > *:nth-child(2)  { animation-delay:  90ms; }
+  .stagger > *:nth-child(3)  { animation-delay: 140ms; }
+  .stagger > *:nth-child(4)  { animation-delay: 190ms; }
+  .stagger > *:nth-child(5)  { animation-delay: 240ms; }
+  .stagger > *:nth-child(6)  { animation-delay: 290ms; }
+  .stagger > *:nth-child(7)  { animation-delay: 340ms; }
+  .stagger > *:nth-child(8)  { animation-delay: 390ms; }
+  .stagger > *:nth-child(9)  { animation-delay: 440ms; }
+  .stagger > *:nth-child(10) { animation-delay: 490ms; }
+  .stagger > *:nth-child(11) { animation-delay: 540ms; }
+  .stagger > *:nth-child(12) { animation-delay: 590ms; }
+
+  /* Premium card interaction */
+  .card-lift {
+    transition:
+      transform 260ms var(--ease-out-soft),
+      box-shadow 260ms ease,
+      border-color 260ms ease;
+    will-change: transform;
+  }
+  .card-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-elevated);
+  }
+  .card-lift:active {
+    transform: translateY(-1px) scale(0.995);
+    transition-duration: 120ms;
+  }
+
+  /* Premium button — glow + ripple */
+  .btn-premium {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn-premium::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 80% at 50% 0%, hsl(var(--primary-foreground) / 0.22), transparent 60%);
+    opacity: 0;
+    transition: opacity 240ms ease;
+    pointer-events: none;
+  }
+  .btn-premium:hover::after { opacity: 1; }
+
+  /* Ambient floating orbs (background) */
+  @keyframes orb-float-a {
+    0%,100% { transform: translate3d(0,0,0) scale(1); }
+    50%     { transform: translate3d(6vw, -4vh, 0) scale(1.15); }
+  }
+  @keyframes orb-float-b {
+    0%,100% { transform: translate3d(0,0,0) scale(1.05); }
+    50%     { transform: translate3d(-5vw, 5vh, 0) scale(0.9); }
+  }
+  @keyframes orb-float-c {
+    0%,100% { transform: translate3d(0,0,0) scale(1); }
+    50%     { transform: translate3d(4vw, 6vh, 0) scale(1.1); }
+  }
+  .ambient-orbs {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .ambient-orbs > span {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    opacity: 0.10;
+    will-change: transform;
+  }
+  .ambient-orbs > span:nth-child(1) {
+    width: 44vmax; height: 44vmax; top: -10vmax; left: -10vmax;
+    background: hsl(var(--habits));
+    animation: orb-float-a 22s ease-in-out infinite;
+  }
+  .ambient-orbs > span:nth-child(2) {
+    width: 38vmax; height: 38vmax; bottom: -14vmax; right: -10vmax;
+    background: hsl(var(--hydration));
+    animation: orb-float-b 28s ease-in-out infinite;
+  }
+  .ambient-orbs > span:nth-child(3) {
+    width: 30vmax; height: 30vmax; top: 30%; right: 20%;
+    background: hsl(var(--calories));
+    animation: orb-float-c 34s ease-in-out infinite;
+    opacity: 0.07;
+  }
+  .dark .ambient-orbs > span { opacity: 0.14; }
+
+  /* Shimmer for skeleton loaders */
+  @keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.10) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 800px 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  /* Sidebar / nav active indicator glide */
+  .nav-indicator {
+    transition: transform 320ms var(--ease-out-soft), opacity 220ms ease;
+  }
+
+  /* Icon micro-interactions */
+  .icon-pop {
+    transition: transform 220ms var(--ease-spring);
+  }
+  .group:hover .icon-pop,
+  .icon-pop:hover { transform: scale(1.12); }
+
+  /* Sparkle for achievements */
+  @keyframes sparkle {
+    0%,100% { opacity: 0; transform: scale(0.6) rotate(0deg); }
+    50%     { opacity: 1; transform: scale(1.1) rotate(20deg); }
+  }
+  .sparkle { animation: sparkle 1.6s ease-in-out infinite; }
+
+  /* Slow gradient drift — for hero backgrounds */
+  @keyframes gradient-drift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .animate-gradient-drift {
+    background-size: 200% 200%;
+    animation: gradient-drift 14s ease infinite;
+  }
+
+  /* Ghost mode strips all ambient / decorative motion */
+  .ghost-mode .ambient-orbs,
+  .ghost-mode .animate-gradient-drift { display: none !important; }
+  .ghost-mode .card-lift:hover { transform: none; }
+  .ghost-mode .btn-premium::after { display: none; }
+
+  /* Reduced motion — respect user preference */
+  @media (prefers-reduced-motion: reduce) {
+    .page-transition,
+    .animate-spring-in,
+    .stagger > *,
+    .animate-gradient-drift,
+    .ambient-orbs > span,
+    .shimmer {
+      animation: none !important;
+    }
+    .card-lift:hover { transform: none !important; }
+    html, body, .theme-transition { transition: none !important; }
+  }
 }
+
