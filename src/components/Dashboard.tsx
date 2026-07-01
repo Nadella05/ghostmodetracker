@@ -107,7 +107,7 @@ export function Dashboard() {
       />
 
 
-      <div className="flex-1 min-w-0 flex flex-col">
+      <div className="flex-1 min-w-0 flex flex-col relative z-[1]">
         <header className={cn(
           'sticky top-0 z-10 backdrop-blur-lg border-b',
           isGhostMode
