@@ -66,14 +66,15 @@ export function DashboardOverview() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 stagger">
       {/* Hero: Discipline command card */}
       <div className={cn(
-        'relative overflow-hidden rounded-3xl border p-6 sm:p-8',
-        !isGhostMode ? 'text-white shadow-elevated' : 'bg-card',
+        'relative overflow-hidden rounded-3xl border p-6 sm:p-8 animate-spring-in',
+        !isGhostMode ? 'text-white shadow-elevated animate-gradient-drift' : 'bg-card',
       )}
         style={!isGhostMode ? { backgroundImage: 'var(--gradient-hero)' } : undefined}
       >
+
         {!isGhostMode && (
           <>
             <div className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/20 blur-3xl" />
