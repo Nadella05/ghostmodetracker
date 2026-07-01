@@ -149,61 +149,60 @@ export function Dashboard() {
         </header>
 
         <main className="flex-1 container max-w-lg lg:max-w-4xl mx-auto px-4 py-6 w-full">
-          {activeTab === 'dashboard' && <DashboardOverview />}
+          <div key={activeTab} className="page-transition">
+            {activeTab === 'dashboard' && <DashboardOverview />}
 
-          {activeTab === 'today' && (
-            <div className="space-y-3">
-              {todaysHabits.length > 0 && (
-                <div className="xl:hidden">
-                  <DailySummary />
-                </div>
-              )}
-              {todaysHabits.length === 0 ? (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <Plus className="h-8 w-8 text-primary" />
+            {activeTab === 'today' && (
+              <div className="space-y-3">
+                {todaysHabits.length > 0 && (
+                  <div className="xl:hidden">
+                    <DailySummary />
                   </div>
-                  <h2 className="text-lg font-medium mb-2">No habits for today</h2>
-                  <p className="text-muted-foreground mb-6">Start building better habits</p>
-                  <Button onClick={() => setFormOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Your First Habit
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {todaysHabits.map((habit, index) => (
-                    <div
-                      key={habit.id}
-                      className={cn(!isGhostMode && 'animate-fade-in')}
-                      style={{ animationDelay: `${index * 50}ms` }}
-                    >
-                      <HabitCard habit={habit} onEdit={handleEditHabit} />
+                )}
+                {todaysHabits.length === 0 ? (
+                  <div className="text-center py-12 animate-spring-in">
+                    <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                      <Plus className="h-8 w-8 text-primary" />
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                    <h2 className="text-lg font-medium mb-2">No habits for today</h2>
+                    <p className="text-muted-foreground mb-6">Start building better habits</p>
+                    <Button onClick={() => setFormOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Your First Habit
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 stagger">
+                    {todaysHabits.map((habit) => (
+                      <div key={habit.id} className="card-lift">
+                        <HabitCard habit={habit} onEdit={handleEditHabit} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-          {activeTab === 'water' && (
-            <WaterTracker
-              dailyGoal={waterTracker.dailyGoal}
-              todayIntake={waterTracker.todayIntake}
-              addWater={waterTracker.addWater}
-              setDailyGoal={waterTracker.setDailyGoal}
-              resetToday={waterTracker.resetToday}
-              getProgress={waterTracker.getProgress}
-              getWeeklyStats={waterTracker.getWeeklyStats}
-            />
-          )}
+            {activeTab === 'water' && (
+              <WaterTracker
+                dailyGoal={waterTracker.dailyGoal}
+                todayIntake={waterTracker.todayIntake}
+                addWater={waterTracker.addWater}
+                setDailyGoal={waterTracker.setDailyGoal}
+                resetToday={waterTracker.resetToday}
+                getProgress={waterTracker.getProgress}
+                getWeeklyStats={waterTracker.getWeeklyStats}
+              />
+            )}
 
-          {activeTab === 'calories'     && <CalorieChat />}
-          {activeTab === 'calendar'     && <CalendarView />}
-          {activeTab === 'analytics'    && <AnalyticsView />}
-          {activeTab === 'achievements' && <AchievementsView />}
-          {activeTab === 'settings'     && <SettingsView />}
+            {activeTab === 'calories'     && <CalorieChat />}
+            {activeTab === 'calendar'     && <CalendarView />}
+            {activeTab === 'analytics'    && <AnalyticsView />}
+            {activeTab === 'achievements' && <AchievementsView />}
+            {activeTab === 'settings'     && <SettingsView />}
+          </div>
         </main>
+
 
         {activeTab === 'today' && habits.filter(h => !h.archived).length > 0 && (
           <Button
