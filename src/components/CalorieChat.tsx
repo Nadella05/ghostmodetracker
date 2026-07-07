@@ -536,6 +536,13 @@ export function CalorieChat() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <FoodFormDialog
+        open={foodFormOpen}
+        onOpenChange={(v) => { setFoodFormOpen(v); if (!v) setFoodFormPrefill(undefined); }}
+        onSaved={(f) => setSelectedFood(f)}
+      />
+      <NutritionDatabaseDialog open={dbDialogOpen} onOpenChange={setDbDialogOpen} />
     </div>
   );
 }
