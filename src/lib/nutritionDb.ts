@@ -188,15 +188,16 @@ export function importDb(json: string, mode: 'merge' | 'replace' = 'merge'): { a
   const parsed = JSON.parse(json);
   const arr = CustomFoodsArraySchema.safeParse(parsed?.foods ?? parsed);
   if (!arr.success) throw new Error('Invalid nutrition database file');
+  const data = arr.data as unknown as CustomFood[];
   if (mode === 'replace') {
-    state = { foods: arr.data };
+    state = { foods: data };
     persist(); emit();
-    return { added: arr.data.length, skipped: 0 };
+    return { added: data.length, skipped: 0 };
   }
   const existingNames = new Set(state.foods.map(f => normalizeName(f.name)));
   let added = 0, skipped = 0;
   const merged = [...state.foods];
-  for (const f of arr.data) {
+  for (const f of data) {
     if (existingNames.has(normalizeName(f.name))) { skipped++; continue; }
     merged.push({ ...f, id: newId(), createdAt: nowIso(), updatedAt: nowIso() });
     existingNames.add(normalizeName(f.name));
