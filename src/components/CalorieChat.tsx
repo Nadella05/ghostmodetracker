@@ -47,6 +47,10 @@ export function CalorieChat() {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [browseDate, setBrowseDate] = useState<Date | null>(null);
+  const [selectedFood, setSelectedFood] = useState<CustomFood | null>(null);
+  const [foodFormOpen, setFoodFormOpen] = useState(false);
+  const [foodFormPrefill, setFoodFormPrefill] = useState<string | undefined>();
+  const [dbDialogOpen, setDbDialogOpen] = useState(false);
 
   const dailyTotal = getDailyTotal();
   const dailyMacros = getDailyMacros();
