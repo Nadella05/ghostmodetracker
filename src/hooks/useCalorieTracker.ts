@@ -312,6 +312,7 @@ export function useCalorieTracker() {
     messages,
     processInput,
     addCustomCalorie,
+    addFoodEntry,
     editEntry,
     deleteEntry,
     getDailyTotal,
