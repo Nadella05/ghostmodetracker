@@ -26,7 +26,7 @@ function ensureLoaded() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      const result = CustomFoodsArraySchema.safeParse(parsed?.foods ?? []);
+      const result = CustomFoodsArraySchema.safeParse((parsed?.foods ?? [])) as { success: true; data: CustomFood[] } | { success: false };
       state = { foods: result.success ? result.data : [] };
     }
   } catch { /* ignore */ }
@@ -38,7 +38,7 @@ if (typeof window !== 'undefined') {
     if (e.key === STORAGE_KEY && e.newValue) {
       try {
         const parsed = JSON.parse(e.newValue);
-        const result = CustomFoodsArraySchema.safeParse(parsed?.foods ?? []);
+        const result = CustomFoodsArraySchema.safeParse((parsed?.foods ?? [])) as { success: true; data: CustomFood[] } | { success: false };
         if (result.success) { state = { foods: result.data }; emit(); }
       } catch { /* ignore */ }
     }
