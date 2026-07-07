@@ -94,9 +94,9 @@ export function addFood(input: FoodInput): CustomFood {
   };
   const parsed = CustomFoodSchema.safeParse(food);
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'Invalid food');
-  state = { foods: [...state.foods, parsed.data] };
+  state = { foods: [...state.foods, food] };
   persist(); emit();
-  return parsed.data;
+  return food;
 }
 
 export function updateFood(id: string, patch: Partial<FoodInput>): CustomFood | null {
@@ -117,10 +117,10 @@ export function updateFood(id: string, patch: Partial<FoodInput>): CustomFood | 
   const parsed = CustomFoodSchema.safeParse(merged);
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? 'Invalid food');
   const next = [...state.foods];
-  next[idx] = parsed.data;
+  next[idx] = merged;
   state = { foods: next };
   persist(); emit();
-  return parsed.data;
+  return merged;
 }
 
 export function deleteFood(id: string) {
