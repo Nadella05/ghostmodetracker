@@ -1,7 +1,36 @@
 import { z } from 'zod';
+import { REF_UNITS } from '@/types/nutrition';
 
 // Sanitization: reject strings containing potentially dangerous patterns
 const dangerousPatterns = /<script|javascript:|on\w+\s*=|<iframe|<object|<embed|<form|data:\s*text\/html/i;
+
+const nonNegNumber = z.number().min(0).max(1_000_000);
+
+export const CustomFoodSchema = z.object({
+  id: z.string().min(1).max(100),
+  name: z.string().trim().min(1, 'Name required').max(120).refine(v => !dangerousPatterns.test(v), 'Invalid characters'),
+  category: z.string().trim().min(1).max(60),
+  brand: z.string().trim().max(80).optional(),
+  referenceQuantity: z.number().positive('Quantity must be positive').max(100000),
+  referenceUnit: z.enum(REF_UNITS as [string, ...string[]]),
+  nutrition: z.object({
+    calories: nonNegNumber,
+    protein: nonNegNumber,
+    carbs: nonNegNumber,
+    fat: nonNegNumber,
+    fiber: nonNegNumber,
+    sugar: nonNegNumber,
+    sodium: nonNegNumber,
+  }),
+  notes: z.string().max(500).optional(),
+  favourite: z.boolean().optional(),
+  archived: z.boolean().optional(),
+  createdAt: z.string().max(50),
+  updatedAt: z.string().max(50),
+  lastUsedAt: z.string().max(50).optional(),
+});
+
+export const CustomFoodsArraySchema = z.array(CustomFoodSchema);
 
 const safeString = (maxLen: number) =>
   z.string().max(maxLen).refine(
