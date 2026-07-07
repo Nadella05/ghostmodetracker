@@ -22,10 +22,15 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { FoodSearchBar } from '@/components/nutrition/FoodSearchBar';
+import { FoodQuickLog } from '@/components/nutrition/FoodQuickLog';
+import { FoodFormDialog } from '@/components/nutrition/FoodFormDialog';
+import { NutritionDatabaseDialog } from '@/components/nutrition/NutritionDatabaseDialog';
+import { CustomFood } from '@/types/nutrition';
 
 export function CalorieChat() {
   const {
-    messages, processInput, addCustomCalorie, getDailyTotal, getDailyMacros, clearChat,
+    messages, processInput, addCustomCalorie, addFoodEntry, getDailyTotal, getDailyMacros, clearChat,
     calorieGoal, setCalorieGoal, editEntry, deleteEntry, getEntriesForDate,
   } = useCalorieTracker();
   const { isGhostMode, profile } = useHabitContext();
