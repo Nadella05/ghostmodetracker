@@ -277,6 +277,27 @@ export function CalorieChat() {
         </div>
       </div>
 
+      {/* Nutrition database quick-log */}
+      <div className="mb-3 space-y-2">
+        {selectedFood ? (
+          <FoodQuickLog
+            food={selectedFood}
+            onCancel={() => setSelectedFood(null)}
+            onLog={(p) => {
+              addFoodEntry(p);
+              setSelectedFood(null);
+            }}
+          />
+        ) : (
+          <FoodSearchBar
+            onSelect={(f) => setSelectedFood(f)}
+            onAddNew={(name) => { setFoodFormPrefill(name); setFoodFormOpen(true); }}
+            onManage={() => setDbDialogOpen(true)}
+          />
+        )}
+      </div>
+
+
       {/* Macro/Projection/Insights — inline on small screens; moved to right panel on xl+ */}
       <div className="xl:hidden space-y-3 mb-3">
         <MacroDashboard totals={dailyMacros} targets={targets} />
