@@ -22,10 +22,15 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { FoodSearchBar } from '@/components/nutrition/FoodSearchBar';
+import { FoodQuickLog } from '@/components/nutrition/FoodQuickLog';
+import { FoodFormDialog } from '@/components/nutrition/FoodFormDialog';
+import { NutritionDatabaseDialog } from '@/components/nutrition/NutritionDatabaseDialog';
+import { CustomFood } from '@/types/nutrition';
 
 export function CalorieChat() {
   const {
-    messages, processInput, addCustomCalorie, getDailyTotal, getDailyMacros, clearChat,
+    messages, processInput, addCustomCalorie, addFoodEntry, getDailyTotal, getDailyMacros, clearChat,
     calorieGoal, setCalorieGoal, editEntry, deleteEntry, getEntriesForDate,
   } = useCalorieTracker();
   const { isGhostMode, profile } = useHabitContext();
@@ -42,6 +47,10 @@ export function CalorieChat() {
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [browseDate, setBrowseDate] = useState<Date | null>(null);
+  const [selectedFood, setSelectedFood] = useState<CustomFood | null>(null);
+  const [foodFormOpen, setFoodFormOpen] = useState(false);
+  const [foodFormPrefill, setFoodFormPrefill] = useState<string | undefined>();
+  const [dbDialogOpen, setDbDialogOpen] = useState(false);
 
   const dailyTotal = getDailyTotal();
   const dailyMacros = getDailyMacros();
@@ -267,6 +276,27 @@ export function CalorieChat() {
           </div>
         </div>
       </div>
+
+      {/* Nutrition database quick-log */}
+      <div className="mb-3 space-y-2">
+        {selectedFood ? (
+          <FoodQuickLog
+            food={selectedFood}
+            onCancel={() => setSelectedFood(null)}
+            onLog={(p) => {
+              addFoodEntry(p);
+              setSelectedFood(null);
+            }}
+          />
+        ) : (
+          <FoodSearchBar
+            onSelect={(f) => setSelectedFood(f)}
+            onAddNew={(name) => { setFoodFormPrefill(name); setFoodFormOpen(true); }}
+            onManage={() => setDbDialogOpen(true)}
+          />
+        )}
+      </div>
+
 
       {/* Macro/Projection/Insights — inline on small screens; moved to right panel on xl+ */}
       <div className="xl:hidden space-y-3 mb-3">
@@ -506,6 +536,13 @@ export function CalorieChat() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <FoodFormDialog
+        open={foodFormOpen}
+        onOpenChange={(v) => { setFoodFormOpen(v); if (!v) setFoodFormPrefill(undefined); }}
+        onSaved={(f) => setSelectedFood(f)}
+      />
+      <NutritionDatabaseDialog open={dbDialogOpen} onOpenChange={setDbDialogOpen} />
     </div>
   );
 }

@@ -179,6 +179,50 @@ export function useCalorieTracker() {
     setStoreMessages(prev => [...prev, { id: id + '-app', type: 'app', text: '', entry, timestamp: now }]);
   }, []);
 
+  const addFoodEntry = useCallback((payload: {
+    name: string;
+    quantity: number;
+    unit: string;
+    nutrition: { calories: number; protein: number; carbs: number; fat: number; fiber: number; sugar: number; sodium: number };
+    foodId?: string;
+  }) => {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const now = new Date().toISOString();
+    const id = Date.now().toString(36) + 'n';
+
+    const item: ParsedFoodItem = {
+      name: payload.name.toLowerCase(),
+      displayName: payload.name.charAt(0).toUpperCase() + payload.name.slice(1),
+      qty: payload.quantity,
+      cal: Math.round(payload.nutrition.calories),
+      unit: payload.unit,
+      found: true,
+      macros: {
+        protein: payload.nutrition.protein,
+        carbs: payload.nutrition.carbs,
+        fat: payload.nutrition.fat,
+        fiber: payload.nutrition.fiber,
+        sugar: payload.nutrition.sugar,
+        sodium: payload.nutrition.sodium,
+      },
+    };
+
+    const entry: CalorieEntry = {
+      id,
+      input: payload.name,
+      items: [item],
+      total: Math.round(payload.nutrition.calories),
+      timestamp: now,
+    };
+
+    setStoreData(prev => ({
+      ...prev,
+      entries: { ...prev.entries, [today]: [...(prev.entries[today] || []), entry] },
+    }));
+
+    setStoreMessages(prev => [...prev, { id: id + '-app', type: 'app', text: '', entry, timestamp: now }]);
+  }, []);
+
   const editEntry = useCallback((date: string, entryId: string, newInput: string) => {
     const parsed = parseCalorieInput(newInput);
     const foundItems = parsed.filter(i => i.found);
@@ -268,6 +312,7 @@ export function useCalorieTracker() {
     messages,
     processInput,
     addCustomCalorie,
+    addFoodEntry,
     editEntry,
     deleteEntry,
     getDailyTotal,
